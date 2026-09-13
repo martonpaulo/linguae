@@ -1,46 +1,58 @@
+"use client";
+
 import { Chip, ChipProps } from "@mui/material";
 
 import { LanguageStatusEnum } from "@/features/languages/types/languageStatus.enum";
+import type { LanguageStatusPalette } from "@/shared/styles/theme";
 
-interface LanguageStatusChipProps extends Omit<ChipProps, "label" | "icon"> {
+interface LanguageStatusChipProps extends Omit<ChipProps, "label" | "icon" | "color"> {
   status?: string;
 }
 
-const MAP_STATUS_TO_COLOR: Record<string, ChipProps["color"]> = {
-  // Well-established / healthy languages
-  [LanguageStatusEnum.NATIONAL]: "success", // Green (strong)
-  [LanguageStatusEnum.PROVINCIAL]: "primary", // Blue (regional)
-  [LanguageStatusEnum.WIDER_COMMUNICATION]: "success",
-  [LanguageStatusEnum.EDUCATIONAL]: "secondary", // Purple
-  [LanguageStatusEnum.DEVELOPING]: "info", // Light blue (developing)
-  [LanguageStatusEnum.VIGOROUS]: "success", // Green (strong)
-
-  // Languages in danger
-  [LanguageStatusEnum.THREATENED]: "warning", // Orange
-  [LanguageStatusEnum.SHIFTING]: "error", // Red (critically endangered)
-  [LanguageStatusEnum.MORIBUND]: "error",
-  [LanguageStatusEnum.NEARLY_EXTINCT]: "error",
-  [LanguageStatusEnum.REAWAKENING]: "warning", // Coming back but requires attention
-  [LanguageStatusEnum.SECOND_LANGUAGE_ONLY]: "info", // Still spoken but not natively
-
-  // Extinct or unattested languages
-  [LanguageStatusEnum.DORMANT]: "default", // Gray (used to be spoken)
-  [LanguageStatusEnum.EXTINCT]: "error", // Strong red (extinct)
-  [LanguageStatusEnum.UNATTESTED]: "default", // Gray (unknown)
+/**
+ * Each status maps to a theme status token. Endangerment runs amber, deep orange, slate, so no
+ * badge borrows the brand crimson or the error red that marks a failure.
+ */
+const MAP_STATUS_TO_TONE: Record<string, keyof LanguageStatusPalette> = {
+  [LanguageStatusEnum.NATIONAL]: "healthy",
+  [LanguageStatusEnum.WIDER_COMMUNICATION]: "healthy",
+  [LanguageStatusEnum.VIGOROUS]: "healthy",
+  [LanguageStatusEnum.PROVINCIAL]: "established",
+  [LanguageStatusEnum.EDUCATIONAL]: "established",
+  [LanguageStatusEnum.DEVELOPING]: "developing",
+  [LanguageStatusEnum.SECOND_LANGUAGE_ONLY]: "developing",
+  [LanguageStatusEnum.THREATENED]: "threatened",
+  [LanguageStatusEnum.REAWAKENING]: "threatened",
+  [LanguageStatusEnum.SHIFTING]: "endangered",
+  [LanguageStatusEnum.MORIBUND]: "endangered",
+  [LanguageStatusEnum.NEARLY_EXTINCT]: "endangered",
+  [LanguageStatusEnum.EXTINCT]: "extinct",
+  // Dormant and unattested keep the neutral default chip: nothing is known to assert.
 };
 
 /** Renders nothing when a language has no recognised category, rather than inventing one. */
 export function LanguageStatusChip({
   status,
+  sx,
   ...props
 }: LanguageStatusChipProps) {
   if (!status) return null;
 
+  const tone = MAP_STATUS_TO_TONE[status];
+
   return (
     <Chip
       label={status}
-      color={MAP_STATUS_TO_COLOR[status]}
       size="small"
+      sx={[
+        tone
+          ? (theme) => ({
+              backgroundColor: theme.palette.status[tone],
+              color: "#fff",
+            })
+          : {},
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       {...props}
     />
   );

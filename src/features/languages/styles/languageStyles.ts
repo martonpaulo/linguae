@@ -6,7 +6,7 @@ import type { SxProps, Theme } from "@mui/material";
  * the value.
  */
 export const languageTableHeadSx: SxProps<Theme> = {
-  "& .MuiTableCell-head": { backgroundColor: "#E3F2FD" },
+  "& .MuiTableCell-head": { backgroundColor: "brandTint.main" },
 };
 
 /**
@@ -37,7 +37,8 @@ export const languageCodeSx: SxProps<Theme> = {
  */
 export const languageLinkSx: SxProps<Theme> = {
   color: "inherit",
-  textDecorationColor: "inherit",
+  textDecorationColor: (theme) => theme.palette.primary.main,
+  "&:hover": { color: "primary.main" },
   "&:focus-visible": {
     outline: "2px solid",
     outlineColor: "primary.main",

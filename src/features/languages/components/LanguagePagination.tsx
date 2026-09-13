@@ -33,6 +33,7 @@ export function LanguagePagination({
         <Pagination
           page={page}
           count={pageCount}
+          color="primary"
           siblingCount={1}
           boundaryCount={1}
           hidePrevButton={page === 1}

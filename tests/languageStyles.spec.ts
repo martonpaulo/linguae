@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const HEADING_FILL = "rgb(227, 242, 253)";
+const HEADING_FILL = "rgb(251, 234, 240)";
 
 test("every table heading cell carries the same fill", async ({ page }) => {
   await page.goto("");
