@@ -2,10 +2,18 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { LanguageType } from "@/features/languages/types/language.type";
-import { enrichLanguagesDataWithNames } from "@/features/languages/utils/languageEnrichers";
+import {
+  enrichLanguagesDataSetListWithNames,
+  enrichLanguagesDataWithNames,
+} from "@/features/languages/utils/languageEnrichers";
+import {
+  countPages,
+  pageSlice,
+} from "@/features/languages/utils/languagePagination";
 import {
   SNAPSHOT_BUILD_DIRECTORY,
   SNAPSHOT_DIRECTORY,
+  SnapshotIndex,
   SnapshotLanguageDetail,
   SnapshotManifest,
   SnapshotNations,
@@ -43,6 +51,44 @@ export async function readEnrichedLanguage(
     nations.nations,
     writingSystems.writingSystems
   );
+}
+
+export interface CataloguePage {
+  /** The enriched rows of this page, in index order. */
+  languages: LanguageType[];
+  pageCount: number;
+}
+
+/** Number of pages the unfiltered catalogue spans. */
+export async function readCataloguePageCount(): Promise<number> {
+  const index = await readAsset<SnapshotIndex>(PUBLIC_ROOT, "index.json");
+  return countPages(index.languages.length);
+}
+
+/**
+ * One page of the unfiltered catalogue, resolved at build time so its rows are in the exported
+ * HTML. Null for a page outside the catalogue's range.
+ */
+export async function readCataloguePage(
+  page: number
+): Promise<CataloguePage | null> {
+  const [index, nations, writingSystems] = await Promise.all([
+    readAsset<SnapshotIndex>(PUBLIC_ROOT, "index.json"),
+    readAsset<SnapshotNations>(PUBLIC_ROOT, "nations.json"),
+    readAsset<SnapshotWritingSystems>(PUBLIC_ROOT, "writing-systems.json"),
+  ]);
+
+  const pageCount = countPages(index.languages.length);
+  if (!Number.isInteger(page) || page < 1 || page > pageCount) return null;
+
+  return {
+    languages: enrichLanguagesDataSetListWithNames(
+      pageSlice(index.languages, page),
+      nations.nations,
+      writingSystems.writingSystems
+    ),
+    pageCount,
+  };
 }
 
 const cache = new Map<string, Promise<unknown>>();

@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import {
   applyNameFilter,
-  REVEAL_STEP,
+  PAGE_SIZE,
   waitForCatalogue,
 } from "./support/syntheticCatalogue";
 
@@ -69,7 +69,7 @@ test.describe("filter persistence resilience", () => {
 
     await page.goto("");
 
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
     await expect(page.getByLabel("Language Name")).toHaveValue("");
   });
 
@@ -82,7 +82,7 @@ test.describe("filter persistence resilience", () => {
 
     await page.goto("");
 
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
     await expect(page.getByLabel("Language Name")).toHaveValue("");
     await expect(page.getByLabel("Language Code")).toHaveValue("");
   });
@@ -121,7 +121,7 @@ test.describe("filter persistence resilience", () => {
     await expect(page.getByText(SAVE_WARNING)).toBeVisible();
 
     await page.getByRole("button", { name: "Reset Filters" }).click();
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
   });
 
   test("restores valid stored filters and leaves unrelated keys alone", async ({

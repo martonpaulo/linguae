@@ -69,7 +69,7 @@ Airtable credentials are not needed to run the project, only to regenerate the s
 | `pnpm test:chromium` | Runs the same suite in one engine, for faster iteration. |
 | `pnpm snapshot` | Generates the public snapshot from Airtable. Requires the build-only credentials. |
 | `pnpm snapshot:scaled` | Generates an 8,000-language synthetic snapshot, for feasibility measurement. |
-| `pnpm measure:derivation` | Benchmarks enrichment, filtering and revealing at 50 to 8,000 languages. |
+| `pnpm measure:derivation` | Benchmarks enrichment, filtering and page slicing at 50 to 8,000 languages. |
 | `pnpm social-card` | Renders `design/social-card/social-card.html` into `public/social-card.jpg`. Mac only. |
 
 <br />
@@ -103,7 +103,7 @@ That has three consequences worth knowing before reading the code:
 
 - **The browser never talks to Airtable**, and no API key exists in the deployed artifact. The build verifies this before uploading.
 - **Each language page is generated with its record already in it.** Opening a language costs no request, and a code the snapshot does not publish has no page, so the host's own 404 answers it.
-- **The catalogue list loads one snapshot index** and filters, sorts and reveals rows locally. Filtering does not issue a request.
+- **Each catalogue page is generated with its rows already in it**, at `/` and `/page/2/` onwards. Filtering loads one snapshot index and filters locally, without a further request.
 
 Data refreshes on each deployment, and a manual refresh is available. A failed or partial
 generation never replaces the published site.
@@ -116,10 +116,11 @@ the working agreements, [CONTRIBUTING.md](CONTRIBUTING.md) to report a bug or pr
 
 ## Features
 
-1. **Table display and incremental loading**
+1. **Table display and pagination**
 
    - Presents every language the snapshot publishes, with code, name, status, nation of origin, writing system and where it is spoken.
-   - Reveals rows in steps of 50 as you scroll, over data that is already loaded.
+   - Shows 50 languages per page. Every page has its own URL and canonical, and previous, next and page numbers are ordinary links.
+   - Applying or resetting filters returns to page 1; moving between pages keeps the applied filters.
 
 2. **Search and filtering**
 
@@ -247,7 +248,7 @@ A commit made for an issue ends with `(#<issue number>)`.
 
 1. **Airtable's SDK documentation** was incomplete, so the reader is written directly against the REST API with `fetch`, following offsets serially per table.
 
-2. **Airtable pagination gives no total count**, which originally forced infinite scroll over remote pages. The static snapshot removed that constraint: the count is known at build time and revealing rows is now local.
+2. **Airtable pagination gives no total count**, which originally forced infinite scroll over remote pages. The static snapshot removed that constraint: the count is known at build time, so every page of the list is exported with its own URL.
 
 3. **The full dataset does not fit in `localStorage`.** Persisting the catalogue was abandoned in favour of persisting only the filter preferences and letting ordinary HTTP caching handle the data.
 

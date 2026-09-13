@@ -93,6 +93,20 @@ test.describe("published metadata", () => {
     expect(language?.url).toBe(url);
   });
 
+  test("a later catalogue page declares itself as canonical", async ({
+    page,
+  }) => {
+    await page.goto("page/2/");
+
+    const url = `${SITE}page/2/`;
+    await expect(page.locator("link[rel=canonical]")).toHaveAttribute(
+      "href",
+      url
+    );
+    expect(await meta(page, 'meta[property="og:url"]')).toBe(url);
+    await expectTitle(page, "Languages, page 2 · Linguae");
+  });
+
   test("titles the not-found page as such, not as the home page", async ({
     page,
   }) => {
@@ -136,7 +150,7 @@ test.describe("published metadata", () => {
   });
 
   test("descends heading levels without skipping", async ({ page }) => {
-    for (const path of ["", `${NAMED_LANGUAGE.code}/`, "zzz/"]) {
+    for (const path of ["", "page/2/", `${NAMED_LANGUAGE.code}/`, "zzz/"]) {
       await page.goto(path);
 
       const levels = await page

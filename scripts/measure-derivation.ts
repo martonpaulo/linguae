@@ -3,18 +3,21 @@ import { LanguageType } from "@/features/languages/types/language.type";
 import { LanguageStatusEnum } from "@/features/languages/types/languageStatus.enum";
 import { enrichLanguagesDataSetListWithNames } from "@/features/languages/utils/languageEnrichers";
 import { filterLanguages } from "@/features/languages/utils/languageFilters";
+import {
+  LANGUAGE_PAGE_SIZE,
+  pageSlice,
+} from "@/features/languages/utils/languagePagination";
 import { NationType } from "@/features/nations/types/nation.type";
 import { WritingSystemType } from "@/features/writingSystems/types/writingSystem.type";
 
 /**
  * Measures the catalogue's derivation path: enrichment of a loaded snapshot, local
- * filtering, and the slice that reveals the next rows. It exists so a performance claim
+ * filtering, and the slice that shows one page of the result. It exists so a performance claim
  * about this path can cite a number rather than an impression.
  *
  * Run with `pnpm measure:derivation`.
  */
 const SIZES = [50, 500, 2_000, 8_000];
-const REVEAL_STEP = 50;
 const NATION_COUNT = 200;
 const WRITING_SYSTEM_COUNT = 40;
 
@@ -88,8 +91,8 @@ function main(): void {
       filterLanguages(enriched, { ...NO_FILTERS, name: "Language 1" })
     );
 
-    time(`reveal ${REVEAL_STEP} more rows`, () =>
-      matching.slice(0, REVEAL_STEP * 2)
+    time(`slice page 2 (${LANGUAGE_PAGE_SIZE} rows)`, () =>
+      pageSlice(matching, 2)
     );
   }
 }

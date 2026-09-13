@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { fetchLanguageIndex } from "@/features/languages/services/languageAPI";
@@ -9,9 +9,6 @@ import { filterLanguages } from "@/features/languages/utils/languageFilters";
 import { useNations } from "@/features/nations/hooks/useNations";
 import { useWritingSystems } from "@/features/writingSystems/hooks/useWritingSystems";
 
-/** Rows revealed per step, matching the previous remote page size. */
-export const LANGUAGE_PAGE_SIZE = 50;
-
 /**
  * Every dependency the catalogue needs before it can show a row, so a page can tell a
  * pending dependency from a failed one, and both from a search that genuinely matched
@@ -20,17 +17,21 @@ export const LANGUAGE_PAGE_SIZE = 50;
 export type LanguagesStatus = "pending" | "error" | "ready";
 
 export interface LanguagesResult {
+  /** Every language matching the filters; the page decides which slice it shows. */
   languages: LanguageType[];
   status: LanguagesStatus;
   /** Describes the failed dependencies and retries exactly those. */
   errorMessage: string | null;
   retry: () => void;
-  hasNextPage: boolean;
-  revealMore: () => void;
 }
 
+/**
+ * `enabled` false skips downloading the index: the unfiltered catalogue ships its rows in each
+ * exported page, so only a filtered view needs the whole snapshot.
+ */
 export function useLanguages(
-  languageFilterParams: LanguageFilterFormValues
+  languageFilterParams: LanguageFilterFormValues,
+  enabled = true
 ): LanguagesResult {
   const { nations, nationsIsError, retryNations } = useNations();
   const {
@@ -46,6 +47,7 @@ export function useLanguages(
   } = useQuery({
     queryKey: ["languageIndex"],
     queryFn: fetchLanguageIndex,
+    enabled,
   });
 
   const failed = useMemo(
@@ -71,16 +73,6 @@ export function useLanguages(
     return filterLanguages(enrichedLanguages, languageFilterParams);
   }, [enrichedLanguages, languageFilterParams]);
 
-  const { revealedCount, revealMore } = useRevealedCount([
-    index?.version,
-    languageFilterParams,
-  ]);
-
-  const languages = useMemo(
-    () => matchingLanguages?.slice(0, revealedCount) ?? [],
-    [matchingLanguages, revealedCount]
-  );
-
   const retry = useCallback(() => {
     if (failed.index) void retryIndex();
     if (failed.nations) void retryNations();
@@ -94,16 +86,14 @@ export function useLanguages(
       : "pending";
 
   return {
-    languages,
+    languages: matchingLanguages ?? EMPTY,
     status,
     errorMessage: hasAnyFailure(failed) ? describeFailure(failed) : null,
     retry,
-    // A revealed step only advances over data that is already loaded and complete.
-    hasNextPage:
-      status === "ready" && revealedCount < (matchingLanguages?.length ?? 0),
-    revealMore,
   };
 }
+
+const EMPTY: LanguageType[] = [];
 
 type FailedDependencies = Record<
   "index" | "nations" | "writingSystems",
@@ -123,33 +113,4 @@ function describeFailure(failed: FailedDependencies): string {
   ].filter(Boolean);
 
   return `The catalogue needs ${missing.join(" and ")} to show its results, and that data could not be loaded.`;
-}
-
-/**
- * Reveals rows in steps over the already loaded snapshot. The count resets whenever the
- * snapshot version or the filters change, so a new result set always starts at its first
- * step instead of inheriting the previous one's position.
- */
-function useRevealedCount(resetOn: unknown[]) {
-  const resetKey = JSON.stringify(resetOn);
-  const [state, setState] = useState({
-    key: resetKey,
-    count: LANGUAGE_PAGE_SIZE,
-  });
-
-  if (state.key !== resetKey) {
-    setState({ key: resetKey, count: LANGUAGE_PAGE_SIZE });
-  }
-
-  const revealMore = useCallback(() => {
-    setState((previous) => ({
-      key: previous.key,
-      count: previous.count + LANGUAGE_PAGE_SIZE,
-    }));
-  }, []);
-
-  const revealedCount =
-    state.key === resetKey ? state.count : LANGUAGE_PAGE_SIZE;
-
-  return { revealedCount, revealMore };
 }

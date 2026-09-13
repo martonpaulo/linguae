@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-import { failSnapshotAssets, REVEAL_STEP } from "./support/syntheticCatalogue";
+import {
+  applyNameFilter,
+  failSnapshotAssets,
+  PAGE_SIZE,
+} from "./support/syntheticCatalogue";
 
 const CATALOGUE_ERROR = "The catalogue needs nations to show its results";
 const EMPTY_RESULT = "No languages found matching the filters.";
@@ -12,12 +16,23 @@ test.describe("composed catalogue states", () => {
       await route.continue();
     });
 
+    // The unfiltered page ships its rows; a filter needs the lookups to derive its result.
     await page.goto("");
+    await applyNameFilter(page, "Lusophone");
 
     await expect(page.getByText("Loading languages...")).toBeVisible();
     await expect(page.getByText(EMPTY_RESULT)).toHaveCount(0);
 
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(2);
+  });
+
+  test("shows the exported rows even when a lookup fails", async ({ page }) => {
+    await failSnapshotAssets(page, { fail: ["nations"] });
+
+    await page.goto("");
+
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
+    await expect(page.getByText(CATALOGUE_ERROR)).toHaveCount(0);
   });
 
   test("reports a failed lookup as an error, not an empty catalogue", async ({
@@ -26,6 +41,7 @@ test.describe("composed catalogue states", () => {
     await failSnapshotAssets(page, { fail: ["nations"] });
 
     await page.goto("");
+    await applyNameFilter(page, "Lusophone");
 
     await expect(page.getByText(CATALOGUE_ERROR)).toBeVisible();
     await expect(page.getByText(EMPTY_RESULT)).toHaveCount(0);
@@ -45,12 +61,13 @@ test.describe("composed catalogue states", () => {
     });
 
     await page.goto("");
+    await applyNameFilter(page, "Lusophone");
     await expect(page.getByText(CATALOGUE_ERROR)).toBeVisible();
 
     shouldFail = false;
     await page.getByRole("button", { name: "Try again" }).click();
 
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(2);
     await expect(page.getByText(CATALOGUE_ERROR)).toHaveCount(0);
   });
 
@@ -60,7 +77,6 @@ test.describe("composed catalogue states", () => {
     await failSnapshotAssets(page, { fail: ["nations"] });
 
     await page.goto("");
-    await expect(page.getByText(CATALOGUE_ERROR)).toBeVisible();
 
     await expect(page.getByLabel("Nation of Origin")).toHaveAttribute(
       "aria-disabled",

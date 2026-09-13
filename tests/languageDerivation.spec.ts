@@ -2,8 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import {
   applyNameFilter,
-  FIXTURE_LANGUAGE_COUNT,
-  REVEAL_STEP,
+  PAGE_SIZE,
   waitForCatalogue,
 } from "./support/syntheticCatalogue";
 
@@ -39,7 +38,7 @@ function largeSnapshot(languageCount: number, nationCount: number) {
   };
 }
 
-async function measureReveal(
+async function measurePageChange(
   page: import("@playwright/test").Page,
   languageCount: number
 ) {
@@ -59,53 +58,44 @@ async function measureReveal(
     );
   }
 
-  const startedAt = Date.now();
+  // The unfiltered page ships the fixture's rows; a filter switches to the routed snapshot.
   await page.goto("");
-  await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+  const startedAt = Date.now();
+  await applyNameFilter(page, "Measured");
+  await expect(
+    page.getByRole("link", { name: "Measured Language 0", exact: true })
+  ).toBeVisible();
   const initialMs = Date.now() - startedAt;
 
-  const revealStartedAt = Date.now();
-  await page.getByText("Loading more languages...").scrollIntoViewIfNeeded();
-  await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP * 2 + 1);
-  const revealMs = Date.now() - revealStartedAt;
+  const changeStartedAt = Date.now();
+  await page.getByRole("link", { name: "Go to next page" }).click();
+  await expect(
+    page.getByRole("link", { name: `Measured Language ${PAGE_SIZE}`, exact: true })
+  ).toBeVisible();
+  const changeMs = Date.now() - changeStartedAt;
 
   for (const [pattern] of assets) await page.unroute(pattern);
 
-  return { initialMs, revealMs };
+  return { initialMs, changeMs };
 }
 
 test.describe("catalogue derivation", () => {
-  test("reveals rows at a cost independent of the snapshot size", async ({
+  test("changes the filtered page at a cost independent of the snapshot size", async ({
     page,
   }, testInfo) => {
-    // If revealing re-derived the snapshot, a 16x larger catalogue would make the reveal
-    // step roughly 16x more expensive. Measuring both sizes tests that invariant directly.
-    const small = await measureReveal(page, 500);
-    const large = await measureReveal(page, 8_000);
+    // If changing page re-derived the snapshot, a 16x larger catalogue would make the change
+    // roughly 16x more expensive. Measuring both sizes tests that invariant directly.
+    const small = await measurePageChange(page, 500);
+    const large = await measurePageChange(page, 8_000);
 
     testInfo.annotations.push({
       type: "measurement",
       description:
-        `500 languages: initial ${small.initialMs} ms, reveal ${small.revealMs} ms; ` +
-        `8000 languages: initial ${large.initialMs} ms, reveal ${large.revealMs} ms`,
+        `500 languages: filter ${small.initialMs} ms, page change ${small.changeMs} ms; ` +
+        `8000 languages: filter ${large.initialMs} ms, page change ${large.changeMs} ms`,
     });
 
-    expect(large.revealMs).toBeLessThan(Math.max(small.revealMs, 20) * 4);
-  });
-
-  test("keeps the rows it already showed when revealing more", async ({
-    page,
-  }) => {
-    await page.goto("");
-    await waitForCatalogue(page);
-
-    const before = await page.getByRole("row").allInnerTexts();
-
-    await page.getByText("Loading more languages...").scrollIntoViewIfNeeded();
-    await expect(page.getByRole("row")).toHaveCount(FIXTURE_LANGUAGE_COUNT + 1);
-
-    const after = await page.getByRole("row").allInnerTexts();
-    expect(after.slice(0, before.length)).toEqual(before);
+    expect(large.changeMs).toBeLessThan(Math.max(small.changeMs, 50) * 4);
   });
 
   test("restores the same result when a filter is applied and removed", async ({
@@ -119,23 +109,9 @@ test.describe("catalogue derivation", () => {
     await expect(page.getByRole("row")).toHaveCount(2);
 
     await page.getByRole("button", { name: "Reset Filters" }).click();
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
 
     expect(await page.getByRole("row").allInnerTexts()).toEqual(before);
-  });
-
-  test("restarts the reveal position when the filter changes", async ({
-    page,
-  }) => {
-    await page.goto("");
-    await waitForCatalogue(page);
-    await page.getByText("Loading more languages...").scrollIntoViewIfNeeded();
-    await expect(page.getByRole("row")).toHaveCount(FIXTURE_LANGUAGE_COUNT + 1);
-
-    await page.getByLabel("Language Name").fill("Synthetic");
-    await page.getByRole("button", { name: "Apply Filters" }).click();
-
-    await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
   });
 
   test("falls back to the raw relation id when a reference name is missing", async ({

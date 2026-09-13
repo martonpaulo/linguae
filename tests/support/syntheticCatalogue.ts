@@ -5,7 +5,7 @@ import { expect, type Page, type Route } from "@playwright/test";
  * `pnpm snapshot:fixture`, so they exercise the real generation and delivery path
  * instead of a parallel mock. These constants describe that fixture.
  */
-export const REVEAL_STEP = 50;
+export const PAGE_SIZE = 50;
 export const FIXTURE_LANGUAGE_COUNT = 67;
 
 export const NAMED_LANGUAGE = {
@@ -68,21 +68,29 @@ export async function failSnapshotAssets(
   }
 }
 
+/** Rows on the last page of the unfiltered fixture. */
+export const LAST_PAGE_SIZE = FIXTURE_LANGUAGE_COUNT - PAGE_SIZE;
+
 /**
- * Waits until the catalogue is hydrated and showing its first reveal step. The filter form
- * is only usable after that: an unhydrated submit is a native form submission that reloads
- * the page instead of filtering.
+ * Waits until a catalogue page shows its rows and is hydrated. The exported HTML already
+ * carries the rows, so the enabled Apply button is what says the form is usable: an
+ * unhydrated submit is a native form submission that reloads the page instead of filtering.
  */
-export async function waitForCatalogue(page: Page): Promise<void> {
-  await expect(page.getByRole("row")).toHaveCount(REVEAL_STEP + 1);
+export async function waitForCatalogue(
+  page: Page,
+  rows: number = PAGE_SIZE
+): Promise<void> {
+  await expect(page.getByRole("row")).toHaveCount(rows + 1);
+  await expect(page.getByRole("button", { name: "Apply Filters" })).toBeEnabled();
 }
 
 /** Types a name filter into the hydrated form and applies it. */
 export async function applyNameFilter(
   page: Page,
-  name: string
+  name: string,
+  rows: number = PAGE_SIZE
 ): Promise<void> {
-  await waitForCatalogue(page);
+  await waitForCatalogue(page, rows);
   await page.getByLabel("Language Name").fill(name);
   await page.getByRole("button", { name: "Apply Filters" }).click();
 }

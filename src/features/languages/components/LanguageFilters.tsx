@@ -21,11 +21,14 @@ interface LanguageFiltersProps {
   /** The settled starting filters, restored once by the page that owns them. */
   initialFilters: LanguageFilterFormValues;
   onFiltersChange: (filters: LanguageFilterFormValues) => void;
+  /** Holds the actions until the page is hydrated, so a click never submits natively. */
+  disabled?: boolean;
 }
 
 export function LanguageFilters({
   initialFilters,
   onFiltersChange,
+  disabled = false,
 }: LanguageFiltersProps) {
   const { register, handleSubmit, reset, control, formState } =
     useForm<LanguageFilterFormValues>({
@@ -205,6 +208,7 @@ export function LanguageFilters({
             variant="outlined"
             color="secondary"
             onClick={handleFormReset}
+            disabled={disabled}
             sx={{
               width: { mobile: "100%", tablet: "auto" },
             }}
@@ -216,6 +220,7 @@ export function LanguageFilters({
             type="submit"
             variant="contained"
             color="primary"
+            disabled={disabled}
             sx={{
               width: { mobile: "100%", tablet: "auto" },
             }}

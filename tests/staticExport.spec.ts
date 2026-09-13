@@ -6,7 +6,9 @@ import { expect, test } from "@playwright/test";
 import { BASE_PATH } from "../playwright.config";
 import {
   applyNameFilter,
+  FIXTURE_LANGUAGE_COUNT,
   NAMED_LANGUAGE,
+  PAGE_SIZE,
 } from "./support/syntheticCatalogue";
 
 const OUT_DIRECTORY = path.join(process.cwd(), "out");
@@ -65,6 +67,27 @@ test.describe("static export delivery", () => {
       page.getByRole("heading", { name: NAMED_LANGUAGE.name })
     ).toBeVisible();
     await expect(page.getByText(NAMED_LANGUAGE.description)).toBeVisible();
+
+    await context.close();
+  });
+
+  test("renders a later catalogue page from the exported HTML alone", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    const response = await page.goto(`${BASE_PATH}/page/2/`, {
+      waitUntil: "domcontentloaded",
+    });
+
+    expect(response?.status()).toBe(200);
+    await expect(page.getByRole("row")).toHaveCount(
+      FIXTURE_LANGUAGE_COUNT - PAGE_SIZE + 1
+    );
+    await expect(
+      page.getByRole("link", { name: "Go to previous page" })
+    ).toHaveAttribute("href", `${BASE_PATH}/`);
 
     await context.close();
   });
