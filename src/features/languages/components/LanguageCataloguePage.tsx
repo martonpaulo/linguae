@@ -1,8 +1,9 @@
 "use client";
 
-import { Link, Stack, Typography } from "@mui/material";
+import { Box, Link, Stack, Typography } from "@mui/material";
 import NextLink from "next/link";
 
+import { LanguageList } from "@/features/languages/components/LanguageList";
 import { LanguagePagination } from "@/features/languages/components/LanguagePagination";
 import { LanguageTable } from "@/features/languages/components/LanguageTable";
 import { useCatalogue } from "@/features/languages/context/CatalogueContext";
@@ -38,7 +39,7 @@ export function LanguageCataloguePage({
   if (!filtering) {
     return (
       <Stack spacing={2}>
-        <LanguageTable languages={languages} />
+        <CatalogueRows languages={languages} />
         <LanguagePagination
           page={page}
           pageCount={pageCount}
@@ -72,12 +73,29 @@ export function LanguageCataloguePage({
 
   return (
     <Stack spacing={2}>
-      <LanguageTable languages={pageSlice(result.languages, page)} />
+      <CatalogueRows languages={pageSlice(result.languages, page)} />
       <LanguagePagination
         page={page}
         pageCount={filteredPageCount}
         languageCount={result.languages.length}
       />
     </Stack>
+  );
+}
+
+/**
+ * The table from the tablet breakpoint, where every column fits; a list below it, where the
+ * table would scroll sideways and clip the name. The hidden one leaves the accessibility tree.
+ */
+function CatalogueRows({ languages }: { languages: LanguageType[] }) {
+  return (
+    <>
+      <Box sx={{ display: { mobile: "none", tablet: "block" } }}>
+        <LanguageTable languages={languages} />
+      </Box>
+      <Box sx={{ display: { mobile: "block", tablet: "none" } }}>
+        <LanguageList languages={languages} />
+      </Box>
+    </>
   );
 }

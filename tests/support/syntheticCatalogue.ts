@@ -80,8 +80,23 @@ export async function waitForCatalogue(
   page: Page,
   rows: number = PAGE_SIZE
 ): Promise<void> {
+  if (isPhone(page)) {
+    await expect(languageItems(page)).toHaveCount(rows);
+    await expect(page.getByRole("button", { name: /^Filters/ })).toBeEnabled();
+    return;
+  }
   await expect(page.getByRole("row")).toHaveCount(rows + 1);
   await expect(page.getByRole("button", { name: "Apply Filters" })).toBeEnabled();
+}
+
+/** Below the tablet breakpoint (767px) the catalogue is a list and the filters collapse. */
+export function isPhone(page: Page): boolean {
+  return (page.viewportSize()?.width ?? 1280) < 767;
+}
+
+/** The languages in the phone list. */
+export function languageItems(page: Page) {
+  return page.getByRole("list", { name: "Languages" }).getByRole("listitem");
 }
 
 /** Types a name filter into the hydrated form and applies it. */

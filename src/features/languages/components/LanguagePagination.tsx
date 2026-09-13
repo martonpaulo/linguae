@@ -34,6 +34,17 @@ export function LanguagePagination({
           page={page}
           count={pageCount}
           color="primary"
+          // Tighter items on a phone keep `‹ 1 … 75 76 77 … 152 ›` on one line at 320px,
+          // where the pager has 256px: nine items at 26px plus hairline gaps.
+          sx={{
+            "& .MuiPaginationItem-root": {
+              minWidth: { mobile: 26, tablet: 32 },
+              height: { mobile: 28, tablet: 32 },
+              mx: { mobile: 0, tablet: "3px" },
+              px: { mobile: "2px", tablet: "6px" },
+              fontSize: { mobile: "0.8125rem", tablet: "0.875rem" },
+            },
+          }}
           siblingCount={1}
           boundaryCount={1}
           hidePrevButton={page === 1}

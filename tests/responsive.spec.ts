@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
-import { NAMED_LANGUAGE, waitForCatalogue } from "./support/syntheticCatalogue";
+import {
+  isPhone,
+  NAMED_LANGUAGE,
+  waitForCatalogue,
+} from "./support/syntheticCatalogue";
 
 const VIEWPORTS = [
   { name: "mobile", width: 375, height: 812 },
@@ -41,6 +45,8 @@ for (const viewport of VIEWPORTS) {
     test("the wide table scrolls inside its own container", async ({ page }) => {
       await page.goto("");
       await waitForCatalogue(page);
+      // A phone gets the list instead, which never scrolls sideways.
+      test.skip(isPhone(page), "the table is replaced by a list below the tablet breakpoint");
 
       const container = page.locator(".MuiTableContainer-root");
       const overflow = await container.evaluate(

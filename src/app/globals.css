@@ -13,6 +13,9 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
+  /* The theme's face for everything, so a link or control outside a Typography inherits it
+     instead of falling back to the browser serif. */
+  font-family: var(--font-poppins), system-ui, sans-serif;
   background: var(--page);
 }
 
