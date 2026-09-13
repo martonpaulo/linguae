@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Link, Stack, Typography } from "@mui/material";
+import { Box, Link, Stack } from "@mui/material";
 import NextLink from "next/link";
 import type { ReactNode } from "react";
 
@@ -14,17 +14,15 @@ interface LanguagePaginationProps {
 /**
  * Previous, next and numbered pages as real links: each page has its own exported URL, so a
  * crawler can follow them and the browser's history works without any script. The first and
- * last pages always show, with the current page's neighbours and an ellipsis between. Plain
+ * last pages always show, with the current page's neighbours and an ellipsis between, so the pager
+ * itself states the extent; no separate "Page N of M" line repeats it. Plain
  * links rather than MUI's Pagination, which shipped buttons, ripples and icons for this.
  */
 export function LanguagePagination({ page, pageCount }: LanguagePaginationProps) {
   if (pageCount <= 1) return null;
 
   return (
-    <Stack spacing={1} alignItems="center">
-      <Typography variant="body2" color="textSecondary">
-        Page {page.toLocaleString("en-US")} of {pageCount.toLocaleString("en-US")}
-      </Typography>
+    <Stack alignItems="center">
       <Box component="nav" aria-label="pagination navigation">
         <Box
           component="ul"

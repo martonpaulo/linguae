@@ -128,13 +128,13 @@ test.describe("catalogue pagination", () => {
     await waitForCatalogue(page);
 
     const lastPage = Math.ceil(FIXTURE_LANGUAGE_COUNT / PAGE_SIZE);
-    await expect(page.getByText(`Page 1 of ${lastPage}`)).toBeVisible();
     await expect(page.getByText(`${FIXTURE_LANGUAGE_COUNT} languages`, { exact: true })).toBeVisible();
+    // The pager is the only statement of the extent: no visible "Page N of M" repeats it.
+    await expect(page.getByText(/^Page \d+ of \d+$/)).toHaveCount(0);
 
-    const numbers = await page
-      .getByRole("navigation", { name: "pagination navigation" })
-      .getByRole("link", { name: /page \d+$/ })
-      .allInnerTexts();
+    const pager = page.getByRole("navigation", { name: "pagination navigation" });
+    await expect(pager.locator('[aria-current="page"]')).toHaveText("1");
+    const numbers = await pager.getByRole("link", { name: /page \d+$/ }).allInnerTexts();
     expect(Number(numbers.at(-1))).toBe(lastPage);
   });
 
