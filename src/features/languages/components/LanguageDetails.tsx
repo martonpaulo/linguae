@@ -115,7 +115,7 @@ export default function LanguageDetails({ language }: LanguageDetailsProps) {
             tablet: "minmax(240px, 340px) minmax(0, 1fr)",
             // Both side columns share what the measure leaves, so no band of the page is empty.
             ...(asides.length === 2 && {
-              wide: `minmax(260px, 1fr) minmax(0, ${MEASURE}) minmax(260px, 1fr)`,
+              wide: `minmax(220px, 1fr) minmax(0, ${MEASURE}) minmax(220px, 1fr)`,
             }),
           }),
         },

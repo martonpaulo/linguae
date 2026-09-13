@@ -72,7 +72,7 @@ const theme = createTheme({
       mobile: 0,
       tablet: 767,
       desktop: 1200,
-      wide: 1500,
+      wide: 1440,
     },
   },
   palette: {
