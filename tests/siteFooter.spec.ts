@@ -3,14 +3,14 @@ import { expect, test } from "@playwright/test";
 import { NAMED_LANGUAGE, waitForCatalogue } from "./support/syntheticCatalogue";
 
 const CREDIT =
-  "Developed by Marton Paulo · MIT licensed · © 2026 Linguae contributors.";
+  "Developed by Marton Paulo · MIT licensed · © 2026 Linguae contributors · Data: Wikitongues";
 
 test.describe("site footer", () => {
   test("credits the project and states the licence and year in the HTML", async ({
     request,
   }) => {
     const html = await (await request.get("")).text();
-    expect(html).toContain("© 2026 Linguae contributors.");
+    expect(html).toContain("© 2026 Linguae contributors");
     expect(html).toContain("MIT licensed");
   });
 
@@ -45,6 +45,20 @@ test.describe("site footer", () => {
         return [style.fontFamily, style.fontSize, style.color];
       })).toEqual(creditFont);
     }
+  });
+
+  test("keeps the credit, the data source and the links on one row on a wide screen", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("");
+    const footer = page.getByRole("contentinfo");
+
+    const tops = await footer.getByRole("link").evaluateAll((links) =>
+      links.map((link) => Math.round(link.getBoundingClientRect().top))
+    );
+    // Wikitongues sits in the credit; Source and martonpaulo.com on the right; all one line.
+    expect(new Set(tops).size).toBe(1);
   });
 
   for (const viewport of [

@@ -41,14 +41,13 @@ export function SiteFooter() {
           fontSize: "0.875rem",
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <Typography component="p" sx={{ m: 0, font: "inherit" }}>
-            Developed by Marton Paulo · MIT licensed · © 2026 Linguae contributors.
-          </Typography>
-          <Typography component="p" sx={{ m: 0, font: "inherit" }}>
+        {/* One line of credit, data source included; it wraps only where the row runs out. */}
+        <Typography component="p" sx={{ m: 0, font: "inherit" }}>
+          Developed by Marton Paulo · MIT licensed · © 2026 Linguae contributors ·{" "}
+          <Box component="span" sx={{ whiteSpace: "nowrap" }}>
             Data: <ExternalLink {...DATA_SOURCE} />
-          </Typography>
-        </Box>
+          </Box>
+        </Typography>
         <Box
           component="nav"
           aria-label="Project links"

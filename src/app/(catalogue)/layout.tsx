@@ -19,7 +19,8 @@ export default async function CatalogueLayout({ children }: { children: ReactNod
       <ContentContainer>
         <Typography
           variant="h1"
-          sx={{ fontSize: { mobile: "1.75rem", tablet: "2.25rem" }, maxWidth: "20ch" }}
+          // No width cap: one line where the row allows it, an even wrap where it does not.
+          sx={{ fontSize: { mobile: "1.75rem", tablet: "2.25rem" }, textWrap: "balance" }}
         >
           {SITE_TAGLINE}
         </Typography>
