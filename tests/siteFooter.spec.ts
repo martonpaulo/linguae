@@ -23,7 +23,11 @@ test.describe("site footer", () => {
 
     const creditFont = await footer
       .getByText(CREDIT)
-      .evaluate((element) => getComputedStyle(element).fontFamily);
+      .evaluate((element) => {
+        const style = getComputedStyle(element);
+        return [style.fontFamily, style.fontSize, style.color];
+      });
+    expect(creditFont[0]).toContain("Poppins");
     const links = footer.getByRole("link");
     await expect(links).toHaveCount(2);
     for (const link of await links.all()) {
@@ -31,9 +35,10 @@ test.describe("site footer", () => {
       expect(href, "external").toMatch(/^https:\/\/(?!linguae\.)/);
       await expect(link.locator("svg.external-icon")).toHaveCount(1);
       // Same typeface as the credit: no fallback serif, no new font.
-      expect(
-        await link.evaluate((element) => getComputedStyle(element).fontFamily)
-      ).toBe(creditFont);
+      expect(await link.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return [style.fontFamily, style.fontSize, style.color];
+      })).toEqual(creditFont);
     }
   });
 

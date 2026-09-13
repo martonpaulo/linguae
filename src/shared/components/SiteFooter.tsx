@@ -52,8 +52,8 @@ export function SiteFooter() {
               sx={{
                 display: "inline-flex",
                 alignItems: "center",
-                color: "text.secondary",
-                fontWeight: 500,
+                font: "inherit",
+                color: "inherit",
                 "&:hover": { color: "primary.main" },
               }}
             >
