@@ -121,6 +121,7 @@ export default async function LanguagePage({ params }: LanguagePageProps) {
         name={language.name}
         code={code}
         status={language.status}
+        alternateNames={language.alternateNames}
       />
       <LanguageDetails language={language} />
     </ContentContainer>

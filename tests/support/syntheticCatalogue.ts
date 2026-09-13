@@ -6,7 +6,7 @@ import { expect, type Page, type Route } from "@playwright/test";
  * instead of a parallel mock. These constants describe that fixture.
  */
 export const PAGE_SIZE = 50;
-export const FIXTURE_LANGUAGE_COUNT = 67;
+export const FIXTURE_LANGUAGE_COUNT = 69;
 
 export const NAMED_LANGUAGE = {
   code: "por",
@@ -16,6 +16,8 @@ export const NAMED_LANGUAGE = {
 };
 
 export const EXTINCT_LANGUAGE = { code: "xtc", name: "Extinct Sample" };
+export const RICH_LANGUAGE = { code: "ric", name: "Rich Sample" };
+export const LONG_LINEAGE_LANGUAGE = { code: "lng", name: "Long Lineage Sample" };
 export const NEARLY_EXTINCT_LANGUAGE = {
   code: "xne",
   name: "Nearly Extinct Sample",

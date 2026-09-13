@@ -86,6 +86,47 @@ const LANGUAGES: AirtableRecordType[] = [
     },
   },
   {
+    // Rich record: every detail field, for the language page layout. Fictional text.
+    id: "rec_ric",
+    fields: {
+      "ISO 639-3": "ric",
+      "Official Name": "Rich Sample",
+      "Alternate Names": "Rich Tongue, Sample Speech",
+      "Language Status": "4 - Educational",
+      "Language Status Notes": "Taught in primary and secondary schools across the fictional region.",
+      Dialects: "Northern Rich, Southern Rich and the coastal variety, which are mutually intelligible.",
+      Genealogy: "Synthetic Family, Coastal Branch, Rich Group",
+      Demographics: "12,000 speakers (fixture census, 2020).",
+      "Language Use": "Used at home, in markets and on regional radio by speakers of every age.",
+      "Language Development": "A standard orthography was adopted in 1998; a dictionary and school readers exist.",
+      Typology: "Subject-verb-object word order, with prepositions and no grammatical gender.",
+      "Other Comments": "This record is synthetic and exists only to exercise the page layout.",
+      Description: "A fictional language used to test how a record with every field reads.",
+      "Principal in": ["nat_br", "nat_pt"],
+      "Writing System": ["ws_latn"],
+      "Nation of Origin": ["nat_br"],
+    },
+  },
+  {
+    // A very long lineage and many alternate names, for wrapping. Fictional text.
+    id: "rec_lng",
+    fields: {
+      "ISO 639-3": "lng",
+      "Official Name": "Long Lineage Sample",
+      "Alternate Names":
+        "Lineage One, Lineage Two, Lineage Three, Lineage Four, Lineage Five, Lineage Six, " +
+        "Lineage Seven, Lineage Eight, Lineage Nine, Lineage Ten, Lineage Eleven, Lineage Twelve",
+      "Language Status": "7 - Shifting",
+      Genealogy:
+        "Proto-Synthetic, Greater Fixture, Northern Fixture, Inner Northern, Highland, " +
+        "Upper Highland, Western Upper Highland, River Group, Upper River, Lakeside, " +
+        "Lakeside North, Long Lineage Cluster",
+      Demographics: "About 800 speakers, mostly over 50 (fixture survey, 2018).",
+      "Principal in": ["nat_jp"],
+      "Nation of Origin": ["nat_jp"],
+    },
+  },
+  {
     // Rejected: duplicate of rec_por's code.
     id: "rec_dup",
     fields: { "ISO 639-3": "POR", "Official Name": "Duplicate Portuguese" },

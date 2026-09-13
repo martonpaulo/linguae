@@ -39,19 +39,30 @@ test("a heading cell added later inherits the fill without its own declaration",
 test("the language code renders with the same typography in list and detail", async ({
   page,
 }) => {
+  // The shared rule, independent of each surface's font size: face, weight and tracking in em.
+  const typography = (element: Element) => {
+    const style = getComputedStyle(element);
+    return [
+      style.fontFamily.split(",")[0].replace(/"/g, "").trim(),
+      style.fontWeight,
+      (parseFloat(style.letterSpacing) / parseFloat(style.fontSize)).toFixed(2),
+    ];
+  };
+
   await page.goto("");
-  const listCodeFont = await page
+  const listCode = await page
     .getByRole("row")
     .nth(1)
     .getByRole("cell")
     .first()
-    .evaluate((cell) => getComputedStyle(cell).fontFamily);
+    .evaluate(typography);
 
   await page.goto("por/");
-  const detailCodeFont = await page
-    .getByRole("heading", { name: "POR", exact: true })
-    .evaluate((heading) => getComputedStyle(heading).fontFamily);
+  const detailCode = await page
+    .getByText("POR", { exact: true })
+    .evaluate(typography);
 
-  expect(listCodeFont).toMatch(/^monospace$/i);
-  expect(detailCodeFont).toBe(listCodeFont);
+  // The site's own face, not a mismatched monospace.
+  expect(listCode[0]).toBe("Poppins");
+  expect(detailCode).toEqual(listCode);
 });

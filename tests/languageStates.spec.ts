@@ -11,12 +11,13 @@ const EMPTY_RESULT = "No languages found matching the filters.";
 
 test.describe("composed catalogue states", () => {
   test("stays pending while a lookup is still loading", async ({ page }) => {
-    await page.route("**/catalogue/nations.json", async (route) => {
+    // The unfiltered page ships its rows; only a filter requests the index, so holding it
+    // keeps the filtered result pending however long hydration took.
+    await page.route("**/catalogue/index.json", async (route) => {
       await new Promise((resolve) => setTimeout(resolve, 3_000));
       await route.continue();
     });
 
-    // The unfiltered page ships its rows; a filter needs the lookups to derive its result.
     await page.goto("");
     await applyNameFilter(page, "Lusophone");
 

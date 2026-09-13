@@ -39,9 +39,7 @@ test.describe("catalogue smoke journey", () => {
     await expect(
       page.getByRole("heading", { name: NAMED_LANGUAGE.name })
     ).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: "POR", exact: true })
-    ).toBeVisible();
+    await expect(page.getByText("ISO 639-3 POR")).toBeVisible();
     await expect(page.getByText(NAMED_LANGUAGE.description)).toBeVisible();
   });
 

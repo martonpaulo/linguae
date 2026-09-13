@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import {
   createContext,
   type ReactNode,
@@ -10,6 +11,7 @@ import {
 } from "react";
 
 import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
+import { rememberCataloguePath } from "@/features/languages/context/lastCataloguePage";
 import {
   LanguagesResult,
   useLanguages,
@@ -47,6 +49,9 @@ export function CatalogueProvider({ children }: { children: ReactNode }) {
     setFilters(restoreFilters());
     setRestored(true);
   }, []);
+
+  const pathname = usePathname();
+  useEffect(() => rememberCataloguePath(pathname), [pathname]);
 
   const filtering = Object.values(filters).some(Boolean);
   const result = useLanguages(filters, filtering);

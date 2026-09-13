@@ -24,11 +24,15 @@ export const languageTableSx: SxProps<Theme> = {
 };
 
 /**
- * Single owner of the language-code typography, shared by the list cell and the detail
- * header so both surfaces present a code the same way.
+ * Single owner of the language-code typography, shared by the table, the phone list and the
+ * detail header. The site's own face with tabular figures and a little tracking reads as a
+ * code without switching to a mismatched monospace.
  */
 export const languageCodeSx: SxProps<Theme> = {
-  fontFamily: "Monospace",
+  fontFamily: "inherit",
+  fontWeight: 500,
+  letterSpacing: "0.06em",
+  fontVariantNumeric: "tabular-nums",
 };
 
 /**

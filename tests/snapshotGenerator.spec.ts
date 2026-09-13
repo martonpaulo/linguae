@@ -41,7 +41,9 @@ test.describe("snapshot generator", () => {
     const files = await readdir(path.join(build, "languages"));
     expect(files.sort()).toEqual([
       "jpn.json",
+      "lng.json",
       "por.json",
+      "ric.json",
       "thr.json",
       "una.json",
       "unk.json",
