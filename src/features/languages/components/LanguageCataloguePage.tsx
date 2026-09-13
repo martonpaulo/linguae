@@ -20,6 +20,7 @@ interface LanguageCataloguePageProps {
   /** This page of the unfiltered catalogue, resolved at build time. */
   languages: LanguageType[];
   pageCount: number;
+  languageCount: number;
 }
 
 /**
@@ -30,6 +31,7 @@ export function LanguageCataloguePage({
   page,
   languages,
   pageCount,
+  languageCount,
 }: LanguageCataloguePageProps) {
   const { filtering, result } = useCatalogue();
 
@@ -37,7 +39,11 @@ export function LanguageCataloguePage({
     return (
       <Stack spacing={2}>
         <LanguageTable languages={languages} />
-        <LanguagePagination page={page} pageCount={pageCount} />
+        <LanguagePagination
+          page={page}
+          pageCount={pageCount}
+          languageCount={languageCount}
+        />
       </Stack>
     );
   }
@@ -67,7 +73,11 @@ export function LanguageCataloguePage({
   return (
     <Stack spacing={2}>
       <LanguageTable languages={pageSlice(result.languages, page)} />
-      <LanguagePagination page={page} pageCount={filteredPageCount} />
+      <LanguagePagination
+        page={page}
+        pageCount={filteredPageCount}
+        languageCount={result.languages.length}
+      />
     </Stack>
   );
 }

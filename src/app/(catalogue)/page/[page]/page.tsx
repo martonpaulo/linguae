@@ -80,6 +80,7 @@ export default async function CataloguePage({ params }: CataloguePageProps) {
       page={page}
       languages={catalogue.languages}
       pageCount={catalogue.pageCount}
+      languageCount={catalogue.languageCount}
     />
   );
 }

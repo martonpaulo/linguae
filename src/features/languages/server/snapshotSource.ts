@@ -57,6 +57,8 @@ export interface CataloguePage {
   /** The enriched rows of this page, in index order. */
   languages: LanguageType[];
   pageCount: number;
+  /** Languages in the whole catalogue, not just this page. */
+  languageCount: number;
 }
 
 /** Number of pages the unfiltered catalogue spans. */
@@ -88,6 +90,7 @@ export async function readCataloguePage(
       writingSystems.writingSystems
     ),
     pageCount,
+    languageCount: index.languages.length,
   };
 }
 

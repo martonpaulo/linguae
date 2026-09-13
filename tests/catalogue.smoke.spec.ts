@@ -123,6 +123,24 @@ test.describe("catalogue pagination", () => {
     await expect(page.getByRole("row")).toHaveCount(LAST_PAGE_SIZE + 1);
   });
 
+  test("states the real extent: total and a last page of ceil(total / page size)", async ({
+    page,
+  }) => {
+    await page.goto("");
+    await waitForCatalogue(page);
+
+    const lastPage = Math.ceil(FIXTURE_LANGUAGE_COUNT / PAGE_SIZE);
+    await expect(
+      page.getByText(`Page 1 of ${lastPage} · ${FIXTURE_LANGUAGE_COUNT} languages`)
+    ).toBeVisible();
+
+    const numbers = await page
+      .getByRole("navigation", { name: "pagination navigation" })
+      .getByRole("link", { name: /page \d+$/ })
+      .allInnerTexts();
+    expect(Number(numbers.at(-1))).toBe(lastPage);
+  });
+
   test("returns to page 1 when a filter is applied on a later page", async ({
     page,
   }) => {

@@ -13,6 +13,7 @@ export default async function Home() {
       page={1}
       languages={catalogue.languages}
       pageCount={catalogue.pageCount}
+      languageCount={catalogue.languageCount}
     />
   );
 }
