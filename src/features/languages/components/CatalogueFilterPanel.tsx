@@ -178,7 +178,7 @@ export function CatalogueFilterPanel({ statuses }: CatalogueFilterPanelProps) {
             gridTemplateColumns: {
               mobile: "minmax(0, 1fr)",
               tablet: "repeat(3, minmax(0, 1fr))",
-              desktop: "110px repeat(4, minmax(0, 1fr)) auto",
+              desktop: "150px repeat(4, minmax(0, 1fr)) auto",
             },
             p: { mobile: 2, tablet: 0 },
             bgcolor: { mobile: "background.paper", tablet: "transparent" },
