@@ -15,7 +15,7 @@ test.describe("catalogue smoke journey", () => {
     await page.goto("");
 
     await expect(
-      page.getByRole("heading", { name: "Linguae" })
+      page.getByRole("heading", { level: 1, name: /documented languages/ })
     ).toBeVisible();
     await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1); // + header
   });

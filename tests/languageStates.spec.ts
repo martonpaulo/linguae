@@ -11,10 +11,15 @@ const EMPTY_RESULT = "No languages found matching the filters.";
 
 test.describe("composed catalogue states", () => {
   test("stays pending while a lookup is still loading", async ({ page }) => {
-    // The unfiltered page ships its rows; only a filter requests the index, so holding it
-    // keeps the filtered result pending however long hydration took.
+    // The index is requested as soon as the page mounts (the status options read it), so a
+    // timed delay can run out before the filter is applied. Holding the response until the
+    // pending state has been seen makes the check independent of how slow the browser is.
+    let release: () => void = () => {};
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
     await page.route("**/catalogue/index.json", async (route) => {
-      await new Promise((resolve) => setTimeout(resolve, 3_000));
+      await held;
       await route.continue();
     });
 
@@ -24,6 +29,7 @@ test.describe("composed catalogue states", () => {
     await expect(page.getByText("Loading languages...")).toBeVisible();
     await expect(page.getByText(EMPTY_RESULT)).toHaveCount(0);
 
+    release();
     await expect(page.getByRole("row")).toHaveCount(2);
   });
 

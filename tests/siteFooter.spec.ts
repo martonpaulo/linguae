@@ -83,3 +83,14 @@ test.describe("site footer", () => {
     }
   });
 });
+
+test.describe("site header", () => {
+  test("shows the brand linking home on every kind of page", async ({ page }) => {
+    for (const path of ["", "page/2/", "por/", "zzz/"]) {
+      await page.goto(path);
+      const home = page.getByRole("banner").getByRole("link", { name: "Linguae" });
+      await expect(home, path).toBeVisible();
+      await expect(home, path).toHaveAttribute("href", "/");
+    }
+  });
+});

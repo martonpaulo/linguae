@@ -1,5 +1,4 @@
-import LanguageIcon from "@mui/icons-material/Language";
-import { Box, Link, Stack, TableCell, TableRow, Typography } from "@mui/material";
+import { Box, Link, TableCell, TableRow, Typography } from "@mui/material";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
@@ -51,23 +50,28 @@ export function LanguageTableRow({ language }: LanguageTableRowProps) {
   };
 
   return (
-    <TableRow hover onClick={handleRowClick} sx={{ cursor: "pointer" }}>
+    <TableRow
+      onClick={handleRowClick}
+      sx={{
+        cursor: "pointer",
+        transition: "background-color 120ms ease",
+        "&:hover, &:focus-within": { bgcolor: "brandTint.main" },
+        "&:active": { bgcolor: "brandTint.hover" },
+      }}
+    >
       <TableCell sx={{ ...languageCodeSx, width: 80 }}>
         {language.code.toUpperCase()}
       </TableCell>
 
       <TableCell sx={{ width: 250 }}>
-        <Stack direction="row" spacing={1} alignItems="center">
-          <LanguageIcon fontSize="small" />
-          <Link
-            component={NextLink}
-            href={href}
-            variant="body2"
-            sx={languageLinkSx}
-          >
-            {language.name}
-          </Link>
-        </Stack>
+        <Link
+          component={NextLink}
+          href={href}
+          variant="body2"
+          sx={{ ...languageLinkSx, fontWeight: 500 }}
+        >
+          {language.name}
+        </Link>
       </TableCell>
 
       <TableCell sx={{ width: 200 }}>

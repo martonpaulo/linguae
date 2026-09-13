@@ -27,12 +27,15 @@ export function SiteFooter() {
         fontFamily: (theme) => theme.typography.fontFamily,
       }}
     >
-      <Container
+      <Container>
+      <Box
+        // The content's own inset, so the footer lines up with the page above it.
         sx={{
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "space-between",
           gap: "12px 30px",
+          px: { mobile: 2, desktop: 4 },
           pt: "32px",
           pb: "56px",
           fontSize: "0.875rem",
@@ -55,6 +58,7 @@ export function SiteFooter() {
             <ExternalLink key={link.href} {...link} />
           ))}
         </Box>
+      </Box>
       </Container>
     </Box>
   );

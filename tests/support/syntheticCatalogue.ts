@@ -54,6 +54,7 @@ export async function failSnapshotAssets(
   page: Page,
   options: SnapshotFailureOptions
 ): Promise<void> {
+
   const handle = async (route: Route) => {
     if (options.delayMs) {
       await new Promise((resolve) => setTimeout(resolve, options.delayMs));

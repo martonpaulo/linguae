@@ -4,27 +4,21 @@ import type { ReactNode } from "react";
 import { CatalogueFilterPanel } from "@/features/languages/components/CatalogueFilterPanel";
 import { CatalogueProvider } from "@/features/languages/context/CatalogueContext";
 import { ContentContainer } from "@/shared/components/ContentContainer";
-import { BASE_PATH } from "@/shared/config/deployment";
+import { SITE_TAGLINE } from "@/shared/config/deployment";
 
-/** The heading and filters every catalogue page shares; the pages below swap only the rows. */
+/**
+ * Every catalogue page leads with the task: the heading says what the page does and the
+ * search comes straight after it. The brand lives in the site header.
+ */
 export default function CatalogueLayout({ children }: { children: ReactNode }) {
   return (
     <CatalogueProvider>
       <ContentContainer>
         <Typography
           variant="h1"
-          sx={{ display: "flex", alignItems: "center", gap: "0.3em" }}
+          sx={{ fontSize: { mobile: "1.75rem", tablet: "2.25rem" }, maxWidth: "20ch" }}
         >
-          {/* The site's own mark (the favicon), decorative: the heading's name is the word. */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- a static export has no image optimizer */}
-          <img
-            src={`${BASE_PATH}/icon.svg`}
-            alt=""
-            width={40}
-            height={40}
-            style={{ width: "0.9em", height: "0.9em" }}
-          />
-          Linguae
+          {SITE_TAGLINE}
         </Typography>
 
         <CatalogueFilterPanel />
