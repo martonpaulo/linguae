@@ -1,6 +1,5 @@
 "use client";
 
-import { Stack } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import { useCallback } from "react";
 
@@ -8,7 +7,6 @@ import { LanguageFilters } from "@/features/languages/components/LanguageFilters
 import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { useCatalogue } from "@/features/languages/context/CatalogueContext";
 import { pageHref } from "@/features/languages/utils/languagePagination";
-import { ProjectAttribution } from "@/shared/components/ProjectAttribution";
 
 /**
  * The filter form above every catalogue page. A new or reset filter changes the result set, so
@@ -28,15 +26,12 @@ export function CatalogueFilterPanel() {
   );
 
   return (
-    <Stack spacing={1}>
-      <LanguageFilters
+    <LanguageFilters
         // Remounted once the stored filters arrive, so the form starts from them.
-        key={restored ? "restored" : "initial"}
-        initialFilters={filters}
-        onFiltersChange={handleFiltersChange}
-        disabled={!restored}
-      />
-      <ProjectAttribution />
-    </Stack>
+      key={restored ? "restored" : "initial"}
+      initialFilters={filters}
+      onFiltersChange={handleFiltersChange}
+      disabled={!restored}
+    />
   );
 }

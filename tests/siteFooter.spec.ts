@@ -29,12 +29,17 @@ test.describe("site footer", () => {
       });
     expect(creditFont[0]).toContain("Poppins");
     const links = footer.getByRole("link");
-    await expect(links).toHaveCount(2);
+    // The attribution lives in the footer only, not in the page body.
+    await expect(page.getByRole("main").getByText("Wikitongues")).toHaveCount(0);
+    await expect(links).toHaveCount(3);
+    await expect(
+      footer.getByRole("link", { name: "Wikitongues" })
+    ).toHaveAttribute("href", "https://wikitongues.org/");
     for (const link of await links.all()) {
       const href = await link.getAttribute("href");
       expect(href, "external").toMatch(/^https:\/\/(?!linguae\.)/);
       await expect(link.locator("svg.external-icon")).toHaveCount(1);
-      // Same typeface as the credit: no fallback serif, no new font.
+      // One line of secondary text: the credit's family, size and colour, no fallback serif.
       expect(await link.evaluate((element) => {
         const style = getComputedStyle(element);
         return [style.fontFamily, style.fontSize, style.color];
