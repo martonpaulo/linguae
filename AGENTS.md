@@ -69,7 +69,11 @@ The product definition is [docs/product.md](docs/product.md). These owner decisi
 
 - Preserve native controls and table/link semantics, keyboard navigation, visible focus, accessible names and non-color status information.
 - Cover pending/content/empty/error/retry/disabled states. Preserve filter input and successfully loaded data during recoverable failures.
-- Test the approved engine families. Screen-reader listening and visual judgment remain marked human verification when automation cannot establish the criterion.
+- Test the approved engine families. Screen-reader passes are not run and that gap is accepted debt (martonpaulo/skill-deck#266): accessibility evidence is automated — semantics, accessible names, focus, contrast measured to AA — and reports say it is weaker than a real pass. Visual judgment that automation cannot establish stays marked human verification.
+- Visual foundations, decided in the 2026-09-13 redesign: the accent is the logo's crimson `#b3214b` (`45b858e`), with light tints of it for large surfaces; language statuses never use red, so a threatened language does not read as an error — amber, dark orange and slate carry the at-risk statuses (`45b858e`). Radii, button and focus styles live as tokens in `src/shared/styles/theme.ts`; a header sits on every page (`f9ccf8b`).
+- Below 767px — measured as where the filters stack and the table overflows — the catalogue renders as a `<ul>` of rows and the filters sit behind a "Filters" button with removable chips for active filters; no page scrolls horizontally at 320, 375 or 390px (`911b4a5`).
+- The footer is one row — credit, data attribution and outward links — and stacks only below 960px (`494859c`). Content above the fold is visible at first paint; motion never starts from hidden.
+- The name search submits with the filter form (Enter or Apply) like every other filter; it does not request per keystroke.
 - Keep English product copy concise and consistent; preserve language names, identifiers and quotations faithfully.
 
 ## Documentation and artifact paths

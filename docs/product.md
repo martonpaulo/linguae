@@ -26,6 +26,8 @@ The site is published to GitHub Pages at `https://linguae.martonpaulo.com/`, ser
 
 The static snapshot updates on each successful publication, with manual refresh available and no periodic schedule selected. Publish only fields already intentionally public in the catalogue; Airtable credentials remain build-only secrets. A failed or partial refresh must not replace the last valid deployment. Preserve Wikitongues attribution and the existing MIT code license without implying that the code license grants new data rights.
 
+The catalogue is paginated, 50 languages per page, never infinitely scrolled (`a3906d7`): every page has its own static URL (`/` is page 1, then `/page/2/` onwards) with real `<a href>` links, a self-referencing canonical, and a 404 outside the range; the pager shows the full extent — first page, neighbours, last page and "Page N of M" (`7eb07a7`). Applying or clearing a filter returns to page 1; paging keeps the filter. The Wikitongues attribution lives in the site footer rather than above the catalogue (`2269b96`).
+
 The interface and developer documentation are English; source language names remain unchanged. Acceptance covers Chromium, Gecko and WebKit. There are no public version numbers or releases. Work is manual, directly on `main`, with automatic task commits and pushes after validation; agent automation is disabled.
 
 ## Observable success
