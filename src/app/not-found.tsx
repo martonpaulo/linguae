@@ -1,8 +1,7 @@
-import { Button, Typography } from "@mui/material";
+import { Button, Stack, Typography } from "@mui/material";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { CenteredPageLayout } from "@/shared/components/CenteredPageLayout";
 import {
   canonicalUrl,
   pageTitle,
@@ -34,22 +33,17 @@ export const metadata: Metadata = {
   },
 };
 
+/** Starts where every page starts: the shared inset, on the logo's left edge. */
 export default function NotFoundPage() {
   return (
-    <CenteredPageLayout>
-      <Typography variant="h1" gutterBottom>
-        404
-      </Typography>
-      <Typography variant="h5" component="h2" gutterBottom>
-        Page not found
-      </Typography>
-      <Typography variant="body1" sx={{ mb: 2 }}>
-        The page you are looking for may not exist or may be temporarily
-        unavailable.
+    <Stack spacing={2} alignItems="flex-start">
+      <Typography variant="h1">Page not found</Typography>
+      <Typography variant="body1" sx={{ maxWidth: "65ch" }}>
+        The page you are looking for may not exist or may be temporarily unavailable.
       </Typography>
       <Button variant="contained" component={Link} href="/" color="primary">
-        Go Home
+        Go to the catalogue
       </Button>
-    </CenteredPageLayout>
+    </Stack>
   );
 }

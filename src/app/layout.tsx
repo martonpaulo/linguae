@@ -1,11 +1,11 @@
 import "./globals.css";
 
-import { Container } from "@mui/material";
 import type { Metadata, Viewport } from "next";
 
 import { readManifest } from "@/features/languages/server/snapshotSource";
 import { SiteFooter } from "@/shared/components/SiteFooter";
 import { SiteHeader } from "@/shared/components/SiteHeader";
+import { SiteMain } from "@/shared/components/SiteMain";
 import {
   canonicalUrl,
   HOME_TITLE,
@@ -99,7 +99,7 @@ export default async function RootLayout({
         <AppThemeProvider>
           <ReactQueryProvider>
             <SiteHeader />
-            <Container component="main">{children}</Container>
+            <SiteMain>{children}</SiteMain>
             <SiteFooter />
           </ReactQueryProvider>
         </AppThemeProvider>

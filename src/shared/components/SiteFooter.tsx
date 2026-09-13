@@ -2,6 +2,8 @@
 
 import { Box, Container, Link, Typography } from "@mui/material";
 
+import { PAGE_INSET } from "@/shared/styles/theme";
+
 const LINKS = [
   { label: "Source", href: "https://github.com/martonpaulo/linguae" },
   { label: "martonpaulo.com", href: "https://www.martonpaulo.com/" },
@@ -35,7 +37,7 @@ export function SiteFooter() {
           flexWrap: "wrap",
           justifyContent: "space-between",
           gap: "12px 30px",
-          px: { mobile: 2, desktop: 4 },
+          px: PAGE_INSET.x,
           pt: "32px",
           pb: "56px",
           fontSize: "0.875rem",

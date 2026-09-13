@@ -4,6 +4,7 @@ import { Box, Container, Link } from "@mui/material";
 import NextLink from "next/link";
 
 import { BASE_PATH } from "@/shared/config/deployment";
+import { PAGE_INSET } from "@/shared/styles/theme";
 
 /** The same small header on every page: the mark and the name, linking to the catalogue. */
 export function SiteHeader() {
@@ -13,7 +14,7 @@ export function SiteHeader() {
       sx={{ borderBottom: 1, borderColor: "divider", bgcolor: "background.paper" }}
     >
       <Container>
-        <Box sx={{ px: { mobile: 2, desktop: 4 }, py: 1.5, display: "flex" }}>
+        <Box sx={{ px: PAGE_INSET.x, py: 1.5, display: "flex" }}>
           <Link
             component={NextLink}
             href="/"

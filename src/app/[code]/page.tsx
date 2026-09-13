@@ -107,7 +107,7 @@ export default async function LanguagePage({ params }: LanguagePageProps) {
   };
 
   return (
-    <ContentContainer>
+    <>
       <script
         type="application/ld+json"
         // The content is built here from the snapshot, never from user input.
@@ -117,13 +117,15 @@ export default async function LanguagePage({ params }: LanguagePageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
-      <LanguageHeader
-        name={language.name}
-        code={code}
-        status={language.status}
-        alternateNames={language.alternateNames}
-      />
-      <LanguageDetails language={language} />
-    </ContentContainer>
+      <ContentContainer>
+        <LanguageHeader
+          name={language.name}
+          code={code}
+          status={language.status}
+          alternateNames={language.alternateNames}
+        />
+        <LanguageDetails language={language} />
+      </ContentContainer>
+    </>
   );
 }

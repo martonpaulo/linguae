@@ -51,6 +51,17 @@ const BRAND = "#b3214b";
 /** Neutral boundary for fields and secondary buttons: 4.5:1 on white, 4.2:1 on the page ground. */
 const FIELD_BOUNDARY = "#767676";
 
+/**
+ * The page's inset, shared by the header, the main content and the footer, so the first text
+ * of every page starts at the same distance below the header and on the same left edge as the
+ * logo. Spacing units: 1 = 8px. Applied once, by `SiteMain`, never per page.
+ */
+export const PAGE_INSET = {
+  x: { mobile: 2, desktop: 4 },
+  top: { mobile: 3, tablet: 5 },
+  bottom: { mobile: 4, desktop: 6 },
+} as const;
+
 const theme = createTheme({
   // One radius for every control and surface, so nothing mixes square and round corners.
   shape: { borderRadius: 10 },
