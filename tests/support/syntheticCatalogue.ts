@@ -23,7 +23,20 @@ export const NEARLY_EXTINCT_LANGUAGE = {
   name: "Nearly Extinct Sample",
 };
 
-export const FIXTURE_NATIONS = ["Brazil", "Japan", "Portugal"];
+export const FIXTURE_NATIONS = [
+  "Angola",
+  "Brazil",
+  "Cabo Verde",
+  "Guinea-Bissau",
+  "Japan",
+  "Mozambique",
+  "Portugal",
+  "São Tomé and Príncipe",
+  "Timor-Leste",
+];
+
+/** Languages whose nation of origin is Brazil: the rich sample and every padding record. */
+export const BRAZIL_ORIGIN_COUNT = 61;
 export const FIXTURE_WRITING_SYSTEMS = ["Japanese", "Latin"];
 
 export type SnapshotAsset =

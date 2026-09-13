@@ -144,7 +144,7 @@ test.describe("catalogue pagination", () => {
     await page.goto("page/2/");
     await applyNameFilter(page, "Lusophone", LAST_PAGE_SIZE);
 
-    await expect(page).toHaveURL(new RegExp(`${BASE_PATH}/$`));
+    await expect(page).toHaveURL(new RegExp(`${BASE_PATH}/\\?name=Lusophone$`));
     await expect(page.getByRole("row")).toHaveCount(2);
   });
 
@@ -157,7 +157,7 @@ test.describe("catalogue pagination", () => {
 
     const next = page.getByRole("link", { name: "Go to next page" });
     await next.click();
-    await expect(page).toHaveURL(/\/page\/2\/$/);
+    await expect(page).toHaveURL(/\/page\/2\/\?name=Synthetic$/);
     await expect(page.getByLabel("Language Name")).toHaveValue("Synthetic");
     // 60 synthetic names: 50 on page 1, the remaining 10 here.
     await expect(page.getByRole("row")).toHaveCount(11);

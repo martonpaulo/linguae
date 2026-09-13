@@ -25,6 +25,7 @@ import {
   DEFAULT_LANGUAGE_FILTERS,
   saveFilters,
 } from "@/features/languages/utils/languageFilters";
+import { filterSearch } from "@/features/languages/utils/languageFilterUrl";
 import { pageHref } from "@/features/languages/utils/languagePagination";
 import { useNations } from "@/features/nations/hooks/useNations";
 import { useWritingSystems } from "@/features/writingSystems/hooks/useWritingSystems";
@@ -74,7 +75,8 @@ export function CatalogueFilterPanel({ statuses }: CatalogueFilterPanelProps) {
       setFilters(next);
       setSaveFailed(!saveFilters(next));
       setPanelOpen(false);
-      if (params.page) router.push(pageHref(1));
+      // The query goes with the navigation, so page 1 opens with the filters in its address.
+      if (params.page) router.push(`${pageHref(1)}${filterSearch(next)}`);
     },
     [params.page, router, setFilters]
   );

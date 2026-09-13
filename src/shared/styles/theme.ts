@@ -12,6 +12,8 @@ declare module "@mui/material/styles" {
     mobile: true;
     tablet: true;
     desktop: true;
+    /** Room for a third column beside the reading measure. */
+    wide: true;
   }
 
   interface Palette {
@@ -70,6 +72,7 @@ const theme = createTheme({
       mobile: 0,
       tablet: 767,
       desktop: 1200,
+      wide: 1500,
     },
   },
   palette: {

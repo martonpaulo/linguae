@@ -1,9 +1,12 @@
-import { Stack, Typography } from "@mui/material";
+import { Link, Stack, Typography } from "@mui/material";
+import NextLink from "next/link";
 
 import { BackToCatalogueLink } from "@/features/languages/components/BackToCatalogueLink";
+import { factLinkSx } from "@/features/languages/components/LanguageFactLinks";
 import { LanguageStatusChip } from "@/features/languages/components/LanguageStatusChip";
 import { languageCodeSx } from "@/features/languages/styles/languageStyles";
 import { LanguageStatusEnum } from "@/features/languages/types/languageStatus.enum";
+import { catalogueFilterHref } from "@/features/languages/utils/languageFilterUrl";
 import { LANGUAGE_STATUS_DESCRIPTIONS } from "@/features/languages/utils/languageStatusDescriptions";
 
 interface LanguageHeaderProps {
@@ -48,7 +51,17 @@ export function LanguageHeader({
           >
             {name}
           </Typography>
-          <LanguageStatusChip status={status} size="medium" />
+          {status && (
+            <Link
+              component={NextLink}
+              href={catalogueFilterHref("status", status)}
+              underline="none"
+              aria-label={`Show ${status} languages`}
+              sx={{ ...factLinkSx, display: "inline-flex", borderRadius: 999 }}
+            >
+              <LanguageStatusChip status={status} size="medium" />
+            </Link>
+          )}
         </Stack>
 
         <Typography variant="body1" color="textSecondary">

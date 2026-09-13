@@ -62,7 +62,7 @@ test.describe("language detail navigation", () => {
     await popup.waitForLoadState();
     expect(popup.url()).toContain(`${BASE_PATH}/${NAMED_LANGUAGE.code}/`);
 
-    await expect(page).toHaveURL(new RegExp(`${BASE_PATH}/$`));
+    await expect(page).toHaveURL(new RegExp(`${BASE_PATH}/\\?name=Lusophone$`));
     await expect(page.getByRole("row")).toHaveCount(2);
     await popup.close();
   });

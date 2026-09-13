@@ -6,6 +6,12 @@ const NATIONS: AirtableRecordType[] = [
   { id: "nat_br", fields: { Polities: "Brazil" } },
   { id: "nat_pt", fields: { Polities: "Portugal" } },
   { id: "nat_jp", fields: { Polities: "Japan" } },
+  { id: "nat_ao", fields: { Polities: "Angola" } },
+  { id: "nat_cv", fields: { Polities: "Cabo Verde" } },
+  { id: "nat_mz", fields: { Polities: "Mozambique" } },
+  { id: "nat_tl", fields: { Polities: "Timor-Leste" } },
+  { id: "nat_gw", fields: { Polities: "Guinea-Bissau" } },
+  { id: "nat_st", fields: { Polities: "São Tomé and Príncipe" } },
   { id: "nat_blank", fields: {} },
 ];
 
@@ -121,8 +127,11 @@ const LANGUAGES: AirtableRecordType[] = [
         "Proto-Synthetic, Greater Fixture, Northern Fixture, Inner Northern, Highland, " +
         "Upper Highland, Western Upper Highland, River Group, Upper River, Lakeside, " +
         "Lakeside North, Long Lineage Cluster",
-      Demographics: "About 800 speakers, mostly over 50 (fixture survey, 2018).",
-      "Principal in": ["nat_jp"],
+      Demographics:
+        "About 800 speakers, mostly over 50 (fixture survey, 2018). Semi-speakers: about 1,200, " +
+        "mostly in the lakeside villages (fixture survey, 2019).",
+      // More places than the facts card and a catalogue cell hold.
+      "Principal in": ["nat_jp", "nat_br", "nat_pt", "nat_ao", "nat_cv", "nat_mz", "nat_tl", "nat_gw", "nat_st"],
       "Nation of Origin": ["nat_jp"],
     },
   },
