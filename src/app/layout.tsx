@@ -4,6 +4,7 @@ import { Container } from "@mui/material";
 import type { Metadata, Viewport } from "next";
 
 import { readManifest } from "@/features/languages/server/snapshotSource";
+import { SiteFooter } from "@/shared/components/SiteFooter";
 import {
   canonicalUrl,
   HOME_TITLE,
@@ -96,7 +97,8 @@ export default async function RootLayout({
         />
         <AppThemeProvider>
           <ReactQueryProvider>
-            <Container>{children}</Container>
+            <Container component="main">{children}</Container>
+            <SiteFooter />
           </ReactQueryProvider>
         </AppThemeProvider>
       </body>

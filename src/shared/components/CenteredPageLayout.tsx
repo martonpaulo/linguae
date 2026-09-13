@@ -9,7 +9,8 @@ export function CenteredPageLayout({ children }: CenteredPageLayoutProps) {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        // Fills the main area, which already stops at the footer.
+        flex: 1,
         p: 2,
         display: "flex",
         flexDirection: "column",

@@ -5,7 +5,23 @@
   --page: #f3f5f8;
 }
 
+/* The footer sits at the bottom of the viewport on a short page instead of floating in the
+   middle of it. svh keeps mobile browser chrome from pushing it off; vh is the fallback. */
 body {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   background: var(--page);
+}
+
+main {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+footer {
+  margin-top: auto;
 }
