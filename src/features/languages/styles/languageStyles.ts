@@ -50,3 +50,13 @@ export const languageLinkSx: SxProps<Theme> = {
     borderRadius: 1,
   },
 };
+
+/** Hidden from sight, still read by assistive technology and still found by text. */
+export const visuallyHiddenSx = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  overflow: "hidden",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+} as const;

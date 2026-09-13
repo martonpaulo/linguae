@@ -1,7 +1,9 @@
 import { Box, Link, Stack, Typography } from "@mui/material";
 import NextLink from "next/link";
 
+import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { LanguageStatusChip } from "@/features/languages/components/LanguageStatusChip";
+import { LanguageValueList } from "@/features/languages/components/LanguageValueList";
 import {
   languageCodeSx,
   languageLinkSx,
@@ -10,6 +12,7 @@ import { LanguageType } from "@/features/languages/types/language.type";
 
 interface LanguageListProps {
   languages: LanguageType[];
+  filters?: LanguageFilterFormValues;
 }
 
 /**
@@ -17,7 +20,7 @@ interface LanguageListProps {
  * sideways and the name, which is the link, is never clipped. The link's hit area is stretched
  * over the whole block, which keeps one tab stop per language.
  */
-export function LanguageList({ languages }: LanguageListProps) {
+export function LanguageList({ languages, filters }: LanguageListProps) {
   return (
     <Box
       component="ul"
@@ -64,8 +67,14 @@ export function LanguageList({ languages }: LanguageListProps) {
           </Stack>
           <Stack direction="row" spacing={1} alignItems="center" mt={0.75}>
             <LanguageStatusChip status={language.status} />
-            <Typography variant="body2" color="textSecondary">
-              {language.nationOfOrigin?.length ? language.nationOfOrigin.join(", ") : "—"}
+            <Typography component="span" variant="body2" color="textSecondary">
+              <LanguageValueList
+                values={language.nationOfOrigin}
+                matched={filters?.nationOfOrigin}
+                languageHref={`/${language.code}`}
+                languageName={language.name}
+                raised
+              />
             </Typography>
           </Stack>
         </Box>

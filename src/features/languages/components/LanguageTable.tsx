@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@mui/material";
 
+import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { LanguageTableRow } from "@/features/languages/components/LanguageTableRow";
 import {
   languageTableHeadSx,
@@ -17,9 +18,10 @@ import { LanguageType } from "@/features/languages/types/language.type";
 
 interface LanguageTableProps {
   languages: LanguageType[];
+  filters?: LanguageFilterFormValues;
 }
 
-export function LanguageTable({ languages }: LanguageTableProps) {
+export function LanguageTable({ languages, filters }: LanguageTableProps) {
   return (
     <TableContainer
       component={Paper}
@@ -39,7 +41,7 @@ export function LanguageTable({ languages }: LanguageTableProps) {
         </TableHead>
         <TableBody>
           {languages.map((language) => (
-            <LanguageTableRow key={language.id} language={language} />
+            <LanguageTableRow key={language.id} language={language} filters={filters} />
           ))}
         </TableBody>
       </Table>

@@ -1,9 +1,11 @@
-import { Box, Link, TableCell, TableRow, Typography } from "@mui/material";
+import { Link, TableCell, TableRow } from "@mui/material";
 import NextLink from "next/link";
 import { useRouter } from "next/navigation";
 import type { MouseEvent } from "react";
 
+import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { LanguageStatusChip } from "@/features/languages/components/LanguageStatusChip";
+import { LanguageValueList } from "@/features/languages/components/LanguageValueList";
 import {
   languageCodeSx,
   languageLinkSx,
@@ -12,18 +14,7 @@ import { LanguageType } from "@/features/languages/types/language.type";
 
 interface LanguageTableRowProps {
   language: LanguageType;
-}
-
-function renderList(items?: string[]) {
-  if (!items || items.length === 0) {
-    return (
-      <Typography variant="body2" color="textSecondary">
-        —
-      </Typography>
-    );
-  }
-
-  return items.map((item) => <Box key={item}>{item}</Box>);
+  filters?: LanguageFilterFormValues;
 }
 
 /** True for a click the row must leave to whoever it landed on. */
@@ -38,7 +29,7 @@ function belongsToAnotherControl(event: MouseEvent<HTMLElement>): boolean {
   return Boolean(target?.closest("a, button, input, select, textarea, label"));
 }
 
-export function LanguageTableRow({ language }: LanguageTableRowProps) {
+export function LanguageTableRow({ language, filters }: LanguageTableRowProps) {
   const router = useRouter();
   const href = `/${language.code}`;
 
@@ -48,6 +39,15 @@ export function LanguageTableRow({ language }: LanguageTableRowProps) {
     if (belongsToAnotherControl(event)) return;
     router.push(href);
   };
+
+  const list = (values: string[] | undefined, matched: string | undefined) => (
+    <LanguageValueList
+      values={values}
+      matched={matched}
+      languageHref={href}
+      languageName={language.name}
+    />
+  );
 
   return (
     <TableRow
@@ -79,14 +79,16 @@ export function LanguageTableRow({ language }: LanguageTableRowProps) {
       </TableCell>
 
       <TableCell sx={{ width: 400 }}>
-        {renderList(language.nationOfOrigin)}
+        {list(language.nationOfOrigin, filters?.nationOfOrigin)}
       </TableCell>
 
       <TableCell sx={{ width: 200 }}>
-        {renderList(language.writingSystem)}
+        {list(language.writingSystem, filters?.writingSystem)}
       </TableCell>
 
-      <TableCell sx={{ width: 350 }}>{renderList(language.spokenIn)}</TableCell>
+      <TableCell sx={{ width: 350 }}>
+        {list(language.spokenIn, filters?.spokenIn)}
+      </TableCell>
     </TableRow>
   );
 }

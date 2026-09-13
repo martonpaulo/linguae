@@ -3,10 +3,12 @@
 import { Box, Button, Link, Paper, Stack, Typography } from "@mui/material";
 import NextLink from "next/link";
 
+import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
 import { LanguageList } from "@/features/languages/components/LanguageList";
 import { LanguagePagination } from "@/features/languages/components/LanguagePagination";
 import { LanguageTable } from "@/features/languages/components/LanguageTable";
 import { useCatalogue } from "@/features/languages/context/CatalogueContext";
+import { visuallyHiddenSx } from "@/features/languages/styles/languageStyles";
 import { LanguageType } from "@/features/languages/types/language.type";
 import {
   countPages,
@@ -22,16 +24,6 @@ interface LanguageCataloguePageProps {
   languageCount: number;
 }
 
-/** Hidden from sight, still read and still found by text. */
-const visuallyHidden = {
-  position: "absolute",
-  width: 1,
-  height: 1,
-  overflow: "hidden",
-  clipPath: "inset(50%)",
-  whiteSpace: "nowrap",
-} as const;
-
 /**
  * One catalogue page. Unfiltered, it shows the rows exported with the page; filtered, it shows
  * the same page number of the local result. Each state is its own: loading, error, nothing
@@ -43,7 +35,7 @@ export function LanguageCataloguePage({
   pageCount,
   languageCount,
 }: LanguageCataloguePageProps) {
-  const { filtering, result, clearFilters } = useCatalogue();
+  const { filters, filtering, result, clearFilters } = useCatalogue();
 
   if (!filtering) {
     return (
@@ -74,7 +66,7 @@ export function LanguageCataloguePage({
   if (result.status === "pending") {
     return (
       <Stack spacing={1} role="status">
-        <Box component="span" sx={visuallyHidden}>
+        <Box component="span" sx={visuallyHiddenSx}>
           Loading languages...
         </Box>
         {Array.from({ length: 6 }, (_, index) => (
@@ -133,6 +125,7 @@ export function LanguageCataloguePage({
     <Results
       count={`${matched.toLocaleString("en-US")} ${matched === 1 ? "language matches" : "languages match"}`}
       languages={pageSlice(result.languages, page)}
+      filters={filters}
       page={page}
       pageCount={filteredPageCount}
     />
@@ -142,11 +135,14 @@ export function LanguageCataloguePage({
 function Results({
   count,
   languages,
+  filters,
   page,
   pageCount,
 }: {
   count: string;
   languages: LanguageType[];
+  /** The applied filters, so a cell can list the value that matched first. */
+  filters?: LanguageFilterFormValues;
   page: number;
   pageCount: number;
 }) {
@@ -157,10 +153,10 @@ function Results({
       </Typography>
       {/* The table from the tablet breakpoint, where every column fits; a list below it. */}
       <Box sx={{ display: { mobile: "none", tablet: "block" } }}>
-        <LanguageTable languages={languages} />
+        <LanguageTable languages={languages} filters={filters} />
       </Box>
       <Box sx={{ display: { mobile: "block", tablet: "none" } }}>
-        <LanguageList languages={languages} />
+        <LanguageList languages={languages} filters={filters} />
       </Box>
       <LanguagePagination page={page} pageCount={pageCount} />
     </Stack>
