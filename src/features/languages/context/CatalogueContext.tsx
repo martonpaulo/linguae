@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import {
   createContext,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -19,6 +20,7 @@ import {
 import {
   DEFAULT_LANGUAGE_FILTERS,
   restoreFilters,
+  saveFilters,
 } from "@/features/languages/utils/languageFilters";
 
 interface CatalogueState {
@@ -29,6 +31,8 @@ interface CatalogueState {
   /** True when any filter narrows the catalogue, so the pages show the local result. */
   filtering: boolean;
   result: LanguagesResult;
+  /** Removes every filter and remembers that. */
+  clearFilters: () => void;
 }
 
 const CatalogueContext = createContext<CatalogueState | null>(null);
@@ -56,9 +60,14 @@ export function CatalogueProvider({ children }: { children: ReactNode }) {
   const filtering = Object.values(filters).some(Boolean);
   const result = useLanguages(filters, filtering);
 
+  const clearFilters = useCallback(() => {
+    setFilters(DEFAULT_LANGUAGE_FILTERS);
+    saveFilters(DEFAULT_LANGUAGE_FILTERS);
+  }, []);
+
   const value = useMemo(
-    () => ({ filters, setFilters, restored, filtering, result }),
-    [filters, restored, filtering, result]
+    () => ({ filters, setFilters, restored, filtering, result, clearFilters }),
+    [filters, restored, filtering, result, clearFilters]
   );
 
   return (

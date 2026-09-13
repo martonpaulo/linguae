@@ -10,7 +10,7 @@ async function selectStatus(
   status: string
 ) {
   await waitForCatalogue(page);
-  await page.getByLabel("Status").click();
+  await page.getByRole("combobox", { name: /^Status/ }).click();
   await page.getByRole("option", { name: status, exact: true }).click();
   await page.getByRole("button", { name: "Apply Filters" }).click();
 }
@@ -70,7 +70,7 @@ test.describe("language status filtering", () => {
   }) => {
     await page.goto("");
     await waitForCatalogue(page);
-    await page.getByLabel("Status").click();
+    await page.getByRole("combobox", { name: /^Status/ }).click();
 
     const options = await page.getByRole("option").allInnerTexts();
     const statuses = options.map((option) => option.trim()).filter(Boolean);
@@ -88,7 +88,7 @@ test.describe("language status filtering", () => {
     await selectStatus(page, "extinct");
     await expect(page.getByRole("row")).toHaveCount(2);
 
-    await page.getByLabel("Status").click();
+    await page.getByRole("combobox", { name: /^Status/ }).click();
     await page.getByRole("option", { name: "None", exact: true }).click();
     await page.getByRole("button", { name: "Apply Filters" }).click();
 

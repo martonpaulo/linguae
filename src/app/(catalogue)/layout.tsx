@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import { CatalogueFilterPanel } from "@/features/languages/components/CatalogueFilterPanel";
 import { CatalogueProvider } from "@/features/languages/context/CatalogueContext";
+import { readManifest } from "@/features/languages/server/snapshotSource";
 import { ContentContainer } from "@/shared/components/ContentContainer";
 import { SITE_TAGLINE } from "@/shared/config/deployment";
 
@@ -10,7 +11,9 @@ import { SITE_TAGLINE } from "@/shared/config/deployment";
  * Every catalogue page leads with the task: the heading says what the page does and the
  * search comes straight after it. The brand lives in the site header.
  */
-export default function CatalogueLayout({ children }: { children: ReactNode }) {
+export default async function CatalogueLayout({ children }: { children: ReactNode }) {
+  const manifest = await readManifest();
+
   return (
     <CatalogueProvider>
       <ContentContainer>
@@ -21,7 +24,7 @@ export default function CatalogueLayout({ children }: { children: ReactNode }) {
           {SITE_TAGLINE}
         </Typography>
 
-        <CatalogueFilterPanel />
+        <CatalogueFilterPanel statuses={manifest.statuses} />
 
         {children}
       </ContentContainer>

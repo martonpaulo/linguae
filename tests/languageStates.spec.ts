@@ -7,7 +7,7 @@ import {
 } from "./support/syntheticCatalogue";
 
 const CATALOGUE_ERROR = "The catalogue needs nations to show its results";
-const EMPTY_RESULT = "No languages found matching the filters.";
+const EMPTY_RESULT = "No languages match these filters.";
 
 test.describe("composed catalogue states", () => {
   test("stays pending while a lookup is still loading", async ({ page }) => {

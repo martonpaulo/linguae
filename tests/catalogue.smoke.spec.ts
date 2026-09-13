@@ -128,9 +128,8 @@ test.describe("catalogue pagination", () => {
     await waitForCatalogue(page);
 
     const lastPage = Math.ceil(FIXTURE_LANGUAGE_COUNT / PAGE_SIZE);
-    await expect(
-      page.getByText(`Page 1 of ${lastPage} · ${FIXTURE_LANGUAGE_COUNT} languages`)
-    ).toBeVisible();
+    await expect(page.getByText(`Page 1 of ${lastPage}`)).toBeVisible();
+    await expect(page.getByText(`${FIXTURE_LANGUAGE_COUNT} languages`, { exact: true })).toBeVisible();
 
     const numbers = await page
       .getByRole("navigation", { name: "pagination navigation" })
@@ -167,3 +166,53 @@ test.describe("catalogue pagination", () => {
     }
   });
 });
+
+test.describe("catalogue search and states", () => {
+  test("does not download the whole index until a filter is applied", async ({ page }) => {
+    const indexRequests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/catalogue/index.json")) indexRequests.push(request.url());
+    });
+
+    await page.goto("");
+    await waitForCatalogue(page);
+    await page.waitForLoadState("networkidle");
+    expect(indexRequests).toEqual([]);
+
+    await applyNameFilter(page, "Lusophone");
+    await expect(page.getByRole("row")).toHaveCount(2);
+    expect(indexRequests).toHaveLength(1);
+  });
+
+  test("says how many languages match", async ({ page }) => {
+    await page.goto("");
+    await applyNameFilter(page, "Lusophone");
+
+    await expect(page.getByText("1 language matches", { exact: true })).toBeVisible();
+  });
+
+  test("offers a way out when nothing matches", async ({ page }) => {
+    await page.goto("");
+    await applyNameFilter(page, "zzzz no such language");
+
+    await expect(page.getByText("No languages match these filters.")).toBeVisible();
+    await page.getByRole("button", { name: "Clear filters" }).click();
+
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
+    await expect(page.getByLabel("Language Name")).toHaveValue("");
+  });
+
+  test("lists the active filters as chips that remove themselves", async ({ page }) => {
+    await page.goto("");
+    await applyNameFilter(page, "Lusophone");
+
+    const remove = page.getByRole("button", { name: "Remove filter Name: Lusophone" });
+    await expect(remove).toBeVisible();
+    await remove.click();
+
+    await expect(page.getByRole("row")).toHaveCount(PAGE_SIZE + 1);
+    await expect(page.getByRole("group", { name: "Active filters" })).toHaveCount(0);
+    await expect(page.getByLabel("Language Name")).toHaveValue("");
+  });
+});
+

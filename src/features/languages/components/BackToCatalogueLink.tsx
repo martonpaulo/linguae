@@ -1,6 +1,5 @@
 "use client";
 
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { Link } from "@mui/material";
 import NextLink from "next/link";
 import { useEffect, useState } from "react";
@@ -35,7 +34,17 @@ export function BackToCatalogueLink() {
         },
       }}
     >
-      <ArrowBackIcon sx={{ fontSize: "1rem" }} aria-hidden />
+      {/* An inline glyph: the icon package's wrapper cost more than the arrow. */}
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden focusable="false">
+        <path
+          d="M13 8H3.5M7.5 3.5 3 8l4.5 4.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
       All languages
     </Link>
   );

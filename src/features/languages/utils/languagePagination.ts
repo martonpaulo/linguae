@@ -23,6 +23,48 @@ export function pageHref(page: number): string {
   return page <= 1 ? "/" : `/page/${page}/`;
 }
 
+export type PageItem = number | "start-ellipsis" | "end-ellipsis";
+
+/**
+ * The page numbers a pager shows: the first and last page, the current page with one
+ * neighbour each side, and an ellipsis where pages are skipped. The number of slots stays
+ * constant as the current page moves, so the pager never jumps in width.
+ */
+export function pageItems(page: number, count: number, siblings = 1, boundary = 1): PageItem[] {
+  const range = (start: number, end: number) =>
+    Array.from({ length: Math.max(end - start + 1, 0) }, (_, index) => start + index);
+
+  const startPages = range(1, Math.min(boundary, count));
+  const endPages = range(Math.max(count - boundary + 1, boundary + 1), count);
+
+  const siblingsStart = Math.max(
+    Math.min(page - siblings, count - boundary - siblings * 2 - 1),
+    boundary + 2
+  );
+  const siblingsEnd = Math.min(
+    Math.max(page + siblings, boundary + siblings * 2 + 2),
+    endPages.length > 0 ? endPages[0] - 2 : count - 1
+  );
+
+  const items: (PageItem | null)[] = [
+    ...startPages,
+    siblingsStart > boundary + 2
+      ? "start-ellipsis"
+      : boundary + 1 < count - boundary
+        ? boundary + 1
+        : null,
+    ...range(siblingsStart, siblingsEnd),
+    siblingsEnd < count - boundary - 1
+      ? "end-ellipsis"
+      : count - boundary > boundary
+        ? count - boundary
+        : null,
+    ...endPages,
+  ];
+
+  return items.filter((item): item is PageItem => item !== null);
+}
+
 /** Path of a page for `canonicalUrl`, matching `pageHref`. */
 export function pagePath(page: number): string {
   return page <= 1 ? "" : `page/${page}`;

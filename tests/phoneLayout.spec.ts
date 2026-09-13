@@ -43,8 +43,8 @@ test.describe("catalogue on a phone", () => {
   }) => {
     await page.goto("");
     await waitForCatalogue(page);
-    await page.getByLabel("Search by name").fill("Lusophone");
-    await page.getByLabel("Search by name").press("Enter");
+    await page.getByLabel("Search by language name").fill("Lusophone");
+    await page.getByLabel("Search by language name").press("Enter");
 
     await expect(languageItems(page)).toHaveCount(1);
     const item = languageItems(page).first();
@@ -59,25 +59,27 @@ test.describe("catalogue on a phone", () => {
     await expect(page).toHaveURL(new RegExp(`${NAMED_LANGUAGE.code}/$`));
   });
 
-  test("opens the filters in a sheet and lists the active ones as removable chips", async ({
+  test("keeps the filters behind one button and lists the active ones as removable chips", async ({
     page,
   }) => {
     await page.goto("");
     await waitForCatalogue(page);
-    await expect(page.getByLabel("Language Name")).toBeHidden();
 
-    await page.getByRole("button", { name: "Filters" }).click();
-    const sheet = page.getByRole("dialog");
-    await sheet.getByLabel("Language Name").fill("Lusophone");
-    await sheet.getByRole("button", { name: "Apply Filters" }).click();
-    await expect(sheet).toBeHidden();
+    const filters = page.getByRole("group", { name: "Filters", exact: true });
+    const toggle = page.getByRole("button", { name: "Filters", exact: true });
+    await expect(filters).toBeHidden();
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
 
+    await toggle.click();
+    await expect(filters).toBeVisible();
+    await filters.getByLabel("Language Code").fill("por");
+    await filters.getByRole("button", { name: "Apply Filters" }).click();
+
+    await expect(filters).toBeHidden();
     await expect(languageItems(page)).toHaveCount(1);
     await expect(page.getByRole("button", { name: "Filters · 1" })).toBeVisible();
-    const chip = page.getByRole("button", { name: "Name: Lusophone" });
-    await expect(chip).toBeVisible();
 
-    await chip.locator(".MuiChip-deleteIcon").click();
+    await page.getByRole("button", { name: "Remove filter Code: por" }).click();
     await expect(languageItems(page)).toHaveCount(PAGE_SIZE);
     await expect(page.getByRole("button", { name: "Filters", exact: true })).toBeVisible();
   });

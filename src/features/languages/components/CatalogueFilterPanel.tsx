@@ -1,169 +1,321 @@
 "use client";
 
-import TuneIcon from "@mui/icons-material/Tune";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
   Button,
-  Chip,
-  Drawer,
+  ButtonBase,
+  InputAdornment,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
-import { type FormEvent, useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 
-import { LanguageFilters } from "@/features/languages/components/LanguageFilters";
-import { LanguageFilterFormValues } from "@/features/languages/components/languageFilters.schema";
+import {
+  LanguageFilterFormValues,
+  languageFilterSchema,
+} from "@/features/languages/components/languageFilters.schema";
+import { LanguageStatusChip } from "@/features/languages/components/LanguageStatusChip";
 import { useCatalogue } from "@/features/languages/context/CatalogueContext";
+import { LanguageStatusEnum } from "@/features/languages/types/languageStatus.enum";
 import {
   DEFAULT_LANGUAGE_FILTERS,
   saveFilters,
 } from "@/features/languages/utils/languageFilters";
 import { pageHref } from "@/features/languages/utils/languagePagination";
+import { useNations } from "@/features/nations/hooks/useNations";
+import { useWritingSystems } from "@/features/writingSystems/hooks/useWritingSystems";
+import { ControlledSelect } from "@/shared/components/ControlledSelect";
 
 const FILTER_LABELS: Record<keyof LanguageFilterFormValues, string> = {
-  code: "Code",
   name: "Name",
+  code: "Code",
   status: "Status",
-  nationOfOrigin: "Nation of Origin",
-  writingSystem: "Writing System",
-  spokenIn: "Spoken In",
+  nationOfOrigin: "Nation of origin",
+  writingSystem: "Writing system",
+  spokenIn: "Spoken in",
 };
 
+interface CatalogueFilterPanelProps {
+  /** Statuses the snapshot publishes, from the build manifest, so no index download is needed. */
+  statuses: LanguageStatusEnum[];
+}
+
 /**
- * The filters above every catalogue page. From the tablet breakpoint the full form shows
- * inline; below it, where the form stacks into a full screen of fields, a name search and a
- * "Filters" button that opens the form in a sheet keep the list on the first screen. A new or
- * reset filter always starts from page 1, since a page number meant another list.
+ * The catalogue's one filter form, led by the name search. The other filters are a secondary
+ * layer: a compact row on wider screens, a panel behind "Filters" on a phone. Every field is
+ * rendered once. Filters apply on Enter or Apply, never per keystroke, and a new result set
+ * always starts from page 1.
  */
-export function CatalogueFilterPanel() {
+export function CatalogueFilterPanel({ statuses }: CatalogueFilterPanelProps) {
   const { filters, setFilters, restored } = useCatalogue();
   const router = useRouter();
   const params = useParams<{ page?: string }>();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  // Counts changes made outside the forms (a removed chip, the phone search), which the forms
-  // must pick up. A form's own Apply is not counted, so it keeps its state, such as the notice
-  // that the filters could not be saved.
-  const [outsideChanges, setOutsideChanges] = useState(0);
+  const [panelOpen, setPanelOpen] = useState(false);
+  // Saving is best effort. Filters still apply; this only says they will not be remembered.
+  const [saveFailed, setSaveFailed] = useState(false);
 
-  const applyFilters = useCallback(
-    (newFilters: LanguageFilterFormValues) => {
-      setFilters(newFilters);
-      setSheetOpen(false);
+  const { register, handleSubmit, reset, control, formState } =
+    useForm<LanguageFilterFormValues>({
+      resolver: zodResolver(languageFilterSchema),
+      defaultValues: DEFAULT_LANGUAGE_FILTERS,
+    });
+
+  // The form always shows what is applied: the restored filters, or a removed chip.
+  useEffect(() => {
+    if (restored) reset(filters);
+  }, [restored, filters, reset]);
+
+  const apply = useCallback(
+    (next: LanguageFilterFormValues) => {
+      setFilters(next);
+      setSaveFailed(!saveFilters(next));
+      setPanelOpen(false);
       if (params.page) router.push(pageHref(1));
     },
     [params.page, router, setFilters]
   );
 
-  const applyAndSave = (newFilters: LanguageFilterFormValues) => {
-    saveFilters(newFilters);
-    setOutsideChanges((count) => count + 1);
-    applyFilters(newFilters);
-  };
+  const { nations, nationsIsLoading, nationsIsError } = useNations();
+  const { writingSystems, writingSystemsIsLoading, writingSystemsIsError } =
+    useWritingSystems();
 
-  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const name = new FormData(event.currentTarget).get("name");
-    applyAndSave({ ...filters, name: typeof name === "string" ? name : "" });
-  };
+  const nationOptions = useMemo(
+    () =>
+      [...(nations ?? [])]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((nation) => ({ value: nation.name })),
+    [nations]
+  );
+  const writingSystemOptions = useMemo(
+    () =>
+      [...(writingSystems ?? [])]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((system) => ({ value: system.name })),
+    [writingSystems]
+  );
 
-  const active = (Object.keys(FILTER_LABELS) as (keyof LanguageFilterFormValues)[])
-    .filter((field) => filters[field]);
+  const selectedStatus = useWatch({ control, name: "status" });
+  // A stored selection the current snapshot no longer publishes stays visible and
+  // selectable, so the person can see why the catalogue looks empty and reset it.
+  const unsupportedStatus =
+    selectedStatus && !(statuses as string[]).includes(selectedStatus)
+      ? selectedStatus
+      : undefined;
+  const statusOptions = useMemo(
+    () => [
+      ...statuses.map((status) => ({ value: status })),
+      ...(unsupportedStatus ? [{ value: unsupportedStatus }] : []),
+    ],
+    [statuses, unsupportedStatus]
+  );
 
-  // Remounted once the stored filters arrive and after each outside change.
-  const formKey = restored ? `restored-${outsideChanges}` : "initial";
+  const nationsError = nationsIsError ? "Nations could not be loaded." : undefined;
+  const writingSystemsError = writingSystemsIsError
+    ? "Writing systems could not be loaded."
+    : undefined;
+
+  const active = (Object.keys(FILTER_LABELS) as (keyof LanguageFilterFormValues)[]).filter(
+    (field) => filters[field]
+  );
 
   return (
     <Stack spacing={1.5}>
-      <Box sx={{ display: { mobile: "none", tablet: "block" } }}>
-        <LanguageFilters
-          key={formKey}
-          initialFilters={filters}
-          onFiltersChange={applyFilters}
-          disabled={!restored}
-        />
-      </Box>
-
       <Stack
         component="form"
         role="search"
-        onSubmit={handleSearch}
-        direction="row"
-        spacing={1}
-        sx={{ display: { mobile: "flex", tablet: "none" } }}
+        aria-label="Languages"
+        onSubmit={handleSubmit(apply)}
+        noValidate
+        autoComplete="off"
+        spacing={1.5}
       >
-        <TextField
-          key={formKey}
-          name="name"
-          label="Search by name"
-          type="search"
-          size="small"
-          fullWidth
-          defaultValue={filters.name}
-          disabled={!restored}
-        />
-        <Button
-          type="button"
-          variant="outlined"
-          color="secondary"
-          startIcon={<TuneIcon />}
-          onClick={() => setSheetOpen(true)}
-          disabled={!restored}
-          sx={{ flex: "none", bgcolor: "background.paper" }}
+        <Stack direction="row" spacing={1}>
+          <TextField
+            label="Search by language name"
+            type="search"
+            fullWidth
+            {...register("name")}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start" sx={{ color: "text.secondary" }}>
+                    {/* An inline glyph: the icon package's wrapper cost more than the mark. */}
+                    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden focusable="false">
+                      <circle cx="8.5" cy="8.5" r="5.25" fill="none" stroke="currentColor" strokeWidth="1.8" />
+                      <path d="m12.5 12.5 4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    </svg>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+          <Button
+            type="button"
+            variant="outlined"
+            color="secondary"
+            aria-expanded={panelOpen}
+            aria-controls="catalogue-filters"
+            onClick={() => setPanelOpen((open) => !open)}
+            disabled={!restored}
+            sx={{ display: { mobile: "inline-flex", tablet: "none" }, flex: "none", bgcolor: "background.paper" }}
+          >
+            {active.length ? `Filters · ${active.length}` : "Filters"}
+          </Button>
+        </Stack>
+
+        <Box
+          id="catalogue-filters"
+          role="group"
+          aria-label="Filters"
+          sx={{
+            display: { mobile: panelOpen ? "grid" : "none", tablet: "grid" },
+            gap: 1.5,
+            alignItems: "start",
+            gridTemplateColumns: {
+              mobile: "minmax(0, 1fr)",
+              tablet: "repeat(3, minmax(0, 1fr))",
+              desktop: "110px repeat(4, minmax(0, 1fr)) auto",
+            },
+            p: { mobile: 2, tablet: 0 },
+            bgcolor: { mobile: "background.paper", tablet: "transparent" },
+            border: { mobile: 1, tablet: 0 },
+            borderColor: "divider",
+            borderRadius: 1,
+          }}
         >
-          {active.length ? `Filters · ${active.length}` : "Filters"}
-        </Button>
+          <TextField
+            label="Language Code"
+            size="small"
+            error={Boolean(formState.errors.code)}
+            helperText={formState.errors.code?.message}
+            {...register("code")}
+          />
+          <ControlledSelect
+            name="status"
+            label="Status"
+            control={control}
+            defaultValue=""
+            options={statusOptions}
+            errorMessage={
+              unsupportedStatus ? "This status is not in the current catalogue." : undefined
+            }
+            renderOption={(option) => <LanguageStatusChip status={option.value} />}
+          />
+          <ControlledSelect
+            name="nationOfOrigin"
+            label="Nation of Origin"
+            control={control}
+            defaultValue=""
+            options={nationOptions}
+            isLoading={nationsIsLoading}
+            isDisabled={nationsIsError}
+            errorMessage={nationsError}
+          />
+          <ControlledSelect
+            name="writingSystem"
+            label="Writing System"
+            control={control}
+            defaultValue=""
+            options={writingSystemOptions}
+            isLoading={writingSystemsIsLoading}
+            isDisabled={writingSystemsIsError}
+            errorMessage={writingSystemsError}
+          />
+          <ControlledSelect
+            name="spokenIn"
+            label="Spoken In"
+            control={control}
+            defaultValue=""
+            options={nationOptions}
+            isLoading={nationsIsLoading}
+            isDisabled={nationsIsError}
+            errorMessage={nationsError}
+          />
+          <Stack
+            direction="row"
+            spacing={1}
+            justifyContent="flex-end"
+            sx={{ gridColumn: { mobile: "1 / -1", desktop: "auto" } }}
+          >
+            <Button
+              type="button"
+              variant="outlined"
+              color="secondary"
+              disabled={!restored}
+              onClick={() => {
+                reset(DEFAULT_LANGUAGE_FILTERS);
+                apply(DEFAULT_LANGUAGE_FILTERS);
+              }}
+              sx={{ flex: { mobile: 1, tablet: "none" }, height: 40, bgcolor: "background.paper" }}
+            >
+              Reset Filters
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!restored}
+              sx={{ flex: { mobile: 1, tablet: "none" }, height: 40, whiteSpace: "nowrap" }}
+            >
+              Apply Filters
+            </Button>
+          </Stack>
+        </Box>
       </Stack>
 
+      {saveFailed && (
+        <Typography role="status" variant="body2" color="textSecondary">
+          Filters are applied. They cannot be remembered on this device.
+        </Typography>
+      )}
+
       {active.length > 0 && (
-        <Stack
-          direction="row"
-          flexWrap="wrap"
-          gap={1}
-          aria-label="Active filters"
-          role="group"
-        >
+        <Stack direction="row" flexWrap="wrap" gap={1} role="group" aria-label="Active filters">
           {active.map((field) => (
-            <Chip
+            <Box
               key={field}
-              label={`${FILTER_LABELS[field]}: ${filters[field]}`}
-              onDelete={() =>
-                applyAndSave({ ...filters, [field]: DEFAULT_LANGUAGE_FILTERS[field] })
-              }
-              variant="outlined"
-              sx={{ bgcolor: "background.paper", maxWidth: "100%" }}
-            />
+              component="span"
+              sx={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 0.25,
+                maxWidth: "100%",
+                pl: 1.25,
+                pr: 0.25,
+                py: 0.25,
+                borderRadius: 999,
+                bgcolor: "brandTint.main",
+                color: "primary.dark",
+                fontSize: "0.8125rem",
+                fontWeight: 500,
+              }}
+            >
+              <Box component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {FILTER_LABELS[field]}: {filters[field]}
+              </Box>
+              <ButtonBase
+                aria-label={`Remove filter ${FILTER_LABELS[field]}: ${filters[field]}`}
+                onClick={() => apply({ ...filters, [field]: DEFAULT_LANGUAGE_FILTERS[field] })}
+                sx={{
+                  width: 24,
+                  height: 24,
+                  flex: "none",
+                  borderRadius: "50%",
+                  color: "inherit",
+                  "&:hover": { bgcolor: "brandTint.hover" },
+                }}
+              >
+                <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden focusable="false">
+                  <path d="M2 2l6 6M8 2 2 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </ButtonBase>
+            </Box>
           ))}
         </Stack>
       )}
-
-      <Drawer
-        anchor="bottom"
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        slotProps={{
-          paper: {
-            // MUI gives the sheet no role; it is a modal dialog named by its heading.
-            role: "dialog",
-            "aria-modal": true,
-            "aria-labelledby": "filters-sheet-title",
-            sx: { maxHeight: "90svh", borderTopLeftRadius: 12, borderTopRightRadius: 12 },
-          },
-        }}
-      >
-        <Stack spacing={1} sx={{ p: 2 }}>
-          <Typography id="filters-sheet-title" variant="h2" component="h2">
-            Filters
-          </Typography>
-          <LanguageFilters
-            key={formKey}
-            initialFilters={filters}
-            onFiltersChange={applyFilters}
-            disabled={!restored}
-          />
-        </Stack>
-      </Drawer>
     </Stack>
   );
 }

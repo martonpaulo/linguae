@@ -6,7 +6,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
 } from "@mui/material";
 
 import { LanguageTableRow } from "@/features/languages/components/LanguageTableRow";
@@ -39,19 +38,9 @@ export function LanguageTable({ languages }: LanguageTableProps) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {languages.length > 0 ? (
-            languages.map((language) => (
-              <LanguageTableRow key={language.id} language={language} />
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={6}>
-                <Typography align="center" variant="body2">
-                  No languages found matching the filters.
-                </Typography>
-              </TableCell>
-            </TableRow>
-          )}
+          {languages.map((language) => (
+            <LanguageTableRow key={language.id} language={language} />
+          ))}
         </TableBody>
       </Table>
     </TableContainer>

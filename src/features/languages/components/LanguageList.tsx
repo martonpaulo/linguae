@@ -18,14 +18,6 @@ interface LanguageListProps {
  * over the whole block, which keeps one tab stop per language.
  */
 export function LanguageList({ languages }: LanguageListProps) {
-  if (languages.length === 0) {
-    return (
-      <Typography align="center" variant="body2">
-        No languages found matching the filters.
-      </Typography>
-    );
-  }
-
   return (
     <Box
       component="ul"
