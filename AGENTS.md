@@ -17,7 +17,6 @@
 - Commit policy: automatically commit task-owned changes when the requested task is complete, relevant checks have passed, and the publication payload has been reviewed. Do not include unrelated work or hide failed checks.
 - Push policy: automatically push those completed, validated commits to `origin/main`; verify the published commit. No force push. Stop and reconcile concurrent remote changes safely before publishing.
 - Product versioning: no user-visible versions or public releases. Preserve `package.json`'s internal `0.1.0`; no automatic version bump, changelog, tag or release.
-- Agent automation: `disabled`
 - Merge policy: not part of normal main-only delivery. An exceptional branch/merge requires an explicit owner request; preserve all commits and do not squash that branch. Existing GitHub merge settings are unchanged because no branch delivery is selected.
 - Commit subject: a commit made for an issue ends with `(#<issue number>)`.
 - Default-branch protection: no required PR review/status gate for main-only delivery; local validation remains mandatory before automatic commit/push. Preserve the current unprotected branch and do not enable auto-merge.
