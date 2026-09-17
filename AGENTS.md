@@ -2,8 +2,10 @@
 
 ## Project identity and policy
 
-- Project name: `linguae`
-- Public name: `Linguae`
+- Display name: `Linguae`
+- Code name: `Linguae`
+- Slug: `linguae`
+- Identifier name: `linguae`
 - Branding: preserve the existing globe branding.
 - Benefit-first description: Interactive table featuring all documented languages from the Wikitongues database, providing an easy way to explore global linguistic diversity 🌎
 - Repository: `martonpaulo/linguae` (public).
