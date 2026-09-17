@@ -100,7 +100,7 @@ test.describe("language status filtering", () => {
   }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem(
-        "@linguae:language-filters:test",
+        "linguae.language-filters.test",
         JSON.stringify({
           code: "",
           name: "",

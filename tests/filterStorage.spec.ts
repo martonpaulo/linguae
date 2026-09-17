@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { applyNameFilter } from "./support/syntheticCatalogue";
 
-const FILTER_KEY = "@linguae:language-filters:test";
+const FILTER_KEY = "linguae.language-filters.test";
 const LEGACY_QUERY_CACHE_KEY = "@linguae:react-query-cache:test";
 const UNRELATED_KEY = "unrelated-origin-key";
 

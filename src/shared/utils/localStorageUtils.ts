@@ -4,8 +4,8 @@ const STORAGE_VERSION =
 
 export function buildStorageKey(key: string): string {
   return STORAGE_PREFIX
-    ? `@${STORAGE_PREFIX}:${key}:${STORAGE_VERSION}`
-    : `${key}:${STORAGE_VERSION}`;
+    ? `${STORAGE_PREFIX}.${key}.${STORAGE_VERSION}`
+    : `${key}.${STORAGE_VERSION}`;
 }
 
 /**

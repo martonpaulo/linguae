@@ -6,7 +6,7 @@ import {
   waitForCatalogue,
 } from "./support/syntheticCatalogue";
 
-const FILTER_KEY = "@linguae:language-filters:test";
+const FILTER_KEY = "linguae.language-filters.test";
 const UNRELATED_KEY = "unrelated-origin-key";
 const SAVE_WARNING = "cannot be remembered";
 
