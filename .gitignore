@@ -57,3 +57,7 @@ DRAFT.md
 # build-only snapshot data
 /.snapshot/
 /.snapshot.staging/
+
+# local agent work and generated artifacts
+/.scratch/
+/artifacts/

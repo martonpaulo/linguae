@@ -1,6 +1,6 @@
 import { AirtableRecordType } from "@/shared/types/airtableRecord.type";
 
-import { SnapshotSource } from "../snapshot/buildSnapshot";
+import { SnapshotSource } from "../../scripts/snapshot/buildSnapshot";
 
 const NATIONS: AirtableRecordType[] = [
   { id: "nat_br", fields: { Polities: "Brazil" } },

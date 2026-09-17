@@ -3,7 +3,8 @@
 ## Project identity and policy
 
 - Project name: `linguae`
-- Public name: `Linguae` (preserve the existing globe branding).
+- Public name: `Linguae`
+- Branding: preserve the existing globe branding.
 - Benefit-first description: Interactive table featuring all documented languages from the Wikitongues database, providing an easy way to explore global linguistic diversity 🌎
 - Repository: `martonpaulo/linguae` (public).
 - Public identifiers: npm package `linguae`, private/non-publishable package.
@@ -90,9 +91,11 @@ The product definition is [docs/product.md](docs/product.md). These owner decisi
 
 ## Agent skill paths
 
-- Product definition: `docs/product.md`.
+- Product definition: `docs/product.md`
+- Handoffs: `.scratch/handoffs/`
+- Prototypes: `.scratch/prototypes/`
 
-No other durable artifact convention is selected. Use uniquely named system temporary directories for disposable work and remove only this task's temporary output before completion.
+`.scratch/` is ignored by Git. Do not create empty artifact directories; a path becomes material only when its owning workflow writes a real artifact. Use uniquely named system temporary directories for anything not worth keeping between sessions, and remove only this task's temporary output before completion.
 
 ## Validation and completion
 

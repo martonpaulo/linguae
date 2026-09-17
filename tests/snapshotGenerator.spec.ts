@@ -5,13 +5,13 @@ import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 
-import { fixtureSource } from "../scripts/fixtures/airtableFixture";
 import { fetchAllRecords } from "../scripts/snapshot/airtableSource";
 import { buildSnapshot } from "../scripts/snapshot/buildSnapshot";
 import type {
   SnapshotIndex,
   SnapshotManifest,
 } from "../src/shared/types/snapshot.type";
+import { fixtureSource } from "./fixtures/airtableFixture";
 
 async function buildInto(source = fixtureSource(0)) {
   const root = await mkdtemp(path.join(tmpdir(), "catalogue-snapshot-"));

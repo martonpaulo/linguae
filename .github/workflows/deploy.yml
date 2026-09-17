@@ -1,0 +1,125 @@
+# Publishes the static export to GitHub Pages at https://linguae.martonpaulo.com/.
+#
+# Deploy never revalidates: it waits for Validate to pass on main and publishes the exact commit
+# Validate checked. A pull request can never reach this workflow's publication, from this
+# repository or from a fork.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Validate]
+    types: [completed]
+    branches: [main]
+  # A manual run always refreshes the snapshot from the source and republishes.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One publication at a time, and never cancel one midway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # Publish only when a path the export is built from changed, as Validate's gate decides.
+  changes:
+    name: Detect changed paths
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      (github.event.workflow_run.event == 'push' ||
+      github.event.workflow_run.event == 'workflow_dispatch'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      artifact: ${{ steps.filter.outputs.artifact }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The commit Validate approved; empty (the default branch) for a manual dispatch.
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      # The push's base revision is read from Validate's check suite. An unreadable one means
+      # "everything changed", so publication is never skipped on a guess.
+      - name: Resolve the base revision
+        id: base
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUITE: ${{ github.event.workflow_run.check_suite_id }}
+        run: |
+          before=$(gh api "repos/${GITHUB_REPOSITORY}/check-suites/${SUITE}" --jq '.before // empty' || true)
+          echo "sha=${before}" >> "$GITHUB_OUTPUT"
+
+      - name: Compare against the base revision
+        id: filter
+        env:
+          EVENT: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.event || github.event_name }}
+          BASE: ${{ steps.base.outputs.sha }}
+          HEAD: ${{ github.event.workflow_run.head_sha || github.sha }}
+        run: bash scripts/detect-changes.sh
+
+  publish:
+    name: Publish to GitHub Pages
+    needs: changes
+    if: needs.changes.outputs.artifact == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+      - name: Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Configure Pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Generate the public snapshot
+        env:
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          LANGUAGES_TABLE_ID: ${{ secrets.LANGUAGES_TABLE_ID }}
+          WRITING_SYSTEMS_TABLE_ID: ${{ secrets.WRITING_SYSTEMS_TABLE_ID }}
+          NATIONS_TABLE_ID: ${{ secrets.NATIONS_TABLE_ID }}
+        run: pnpm snapshot
+
+      - name: Build the static export
+        env:
+          NEXT_PUBLIC_STORAGE_PREFIX: linguae
+          NEXT_PUBLIC_STORAGE_VERSION: ${{ secrets.NEXT_PUBLIC_STORAGE_VERSION }}
+        run: pnpm build:export
+
+      - name: Verify the artifact
+        run: bash scripts/verify-export.sh
+
+      - name: Upload the artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: out
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -3,7 +3,7 @@ import process from "node:process";
 import {
   fixtureSource,
   scaledFixtureSource,
-} from "./fixtures/airtableFixture";
+} from "../tests/fixtures/airtableFixture";
 import { AirtableCredentials, fetchAllRecords } from "./snapshot/airtableSource";
 import { buildSnapshot, SnapshotSource } from "./snapshot/buildSnapshot";
 

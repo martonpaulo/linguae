@@ -210,20 +210,22 @@ generator reports how many it skipped and by record id — never by content.
 
 ## Continuous integration
 
-`.github/workflows/validate.yml` has three responsibilities, and they cost very different amounts:
+`.github/workflows/validate.yml` checks every change, and `.github/workflows/deploy.yml` publishes
+the checked commit. The three jobs cost very different amounts:
 
-| Job | Runs on | Secrets |
-| --- | --- | --- |
-| Lint and types | Every push and pull request, every path | None |
-| Browser acceptance | Only when a path it can observe changed | None; builds the synthetic snapshot |
-| Publish to Pages | Push to `main` or manual dispatch, only when an artifact path changed | The five Airtable secrets, in this job only |
+| Job | Workflow | Runs on | Secrets |
+| --- | --- | --- | --- |
+| Lint and types | Validate | Every push and pull request, every path | None |
+| Browser acceptance | Validate | Only when a path it can observe changed | None; builds the synthetic snapshot |
+| Publish to Pages | Deploy | After Validate passes on a push to `main` or a manual dispatch, only when an artifact path changed; a manual Deploy always publishes | The five Airtable secrets, in this job only |
 
 A pull request cannot reach publication, from this repository or a fork. When the base revision of
 a push cannot be compared, every path is treated as changed rather than as no change, so nothing is
-skipped on a guess.
+skipped on a guess. Both workflows decide with the same script, `scripts/detect-changes.sh`.
 
-Before uploading, the workflow refuses an export that is missing its entry points, has no generated
-language pages, or contains any Airtable variable name or the Airtable host.
+Before uploading, Deploy refuses an export that is missing its entry points, has no generated
+language pages, or contains any Airtable variable name or the Airtable host
+(`scripts/verify-export.sh`).
 
 <br />
 

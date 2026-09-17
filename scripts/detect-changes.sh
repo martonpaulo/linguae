@@ -37,7 +37,7 @@ echo "Changed paths:"
 echo "${CHANGED}" | sed 's/^/  /'
 
 # Everything the export is built from, plus the tooling that builds it.
-ARTIFACT_PATHS='src/|public/|scripts/|package\.json$|pnpm-lock\.yaml$|next\.config\.ts$|tsconfig\.json$|\.github/workflows/|\.github/scripts/'
+ARTIFACT_PATHS='src/|public/|scripts/|package\.json$|pnpm-lock\.yaml$|next\.config\.ts$|tsconfig\.json$|\.github/workflows/'
 # Everything the acceptance suite can observe: the artifact inputs plus the suite itself.
 CODE_PATHS="${ARTIFACT_PATHS}|tests/|playwright\.config\.ts\$|eslint\.config\.mjs\$"
 

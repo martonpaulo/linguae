@@ -4,10 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
-  # A manual run always refreshes the snapshot from the source and republishes.
+  # A manual run checks everything; Deploy then refreshes the snapshot and republishes.
   workflow_dispatch:
 
-# Cancel superseded runs on a branch, but never interrupt a publication in flight.
+# Publication lives in deploy.yml, which waits for this workflow to pass on main. Cancel superseded
+# pull request runs only, so every push to main still produces a result Deploy can act on.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -16,7 +17,8 @@ permissions:
   contents: read
 
 jobs:
-  # Decides what the rest of the run is allowed to skip. An unknown comparison is treated
+  # Decides what the rest of the run is allowed to skip. Deploy runs the same script to decide
+  # whether publication is needed. An unknown comparison is treated
   # as "everything changed", so an undetectable change is never mistaken for no change.
   changes:
     name: Detect changed paths
@@ -36,7 +38,7 @@ jobs:
           EVENT: ${{ github.event_name }}
           BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           HEAD: ${{ github.sha }}
-        run: bash .github/scripts/detect-changes.sh
+        run: bash scripts/detect-changes.sh
 
   # Cheap: every push and every pull request, on every path.
   static:
@@ -100,69 +102,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-
-  # Trusted: only a successful push to main, or an explicit manual refresh. A pull request
-  # can never reach this job, from this repository or from a fork.
-  publish:
-    name: Publish to GitHub Pages
-    needs: [changes, static, acceptance]
-    if: >-
-      always()
-      && github.event_name != 'pull_request'
-      && github.ref == 'refs/heads/main'
-      && needs.static.result == 'success'
-      && needs.acceptance.result != 'failure'
-      && (needs.changes.outputs.artifact == 'true' || github.event_name == 'workflow_dispatch')
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-
-      - name: Set up Node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Configure Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-
-      - name: Generate the public snapshot
-        env:
-          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
-          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
-          LANGUAGES_TABLE_ID: ${{ secrets.LANGUAGES_TABLE_ID }}
-          WRITING_SYSTEMS_TABLE_ID: ${{ secrets.WRITING_SYSTEMS_TABLE_ID }}
-          NATIONS_TABLE_ID: ${{ secrets.NATIONS_TABLE_ID }}
-        run: pnpm snapshot
-
-      - name: Build the static export
-        env:
-          NEXT_PUBLIC_STORAGE_PREFIX: linguae
-          NEXT_PUBLIC_STORAGE_VERSION: ${{ secrets.NEXT_PUBLIC_STORAGE_VERSION }}
-        run: pnpm build:export
-
-      - name: Verify the artifact
-        run: bash .github/scripts/verify-export.sh
-
-      - name: Upload the artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: out
-
-      - name: Deploy
-        id: deploy
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

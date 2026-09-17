@@ -7,7 +7,7 @@ import path from "node:path";
 
 import { expect, test } from "@playwright/test";
 
-const SCRIPT = path.join(process.cwd(), ".github", "scripts", "detect-changes.sh");
+const SCRIPT = path.join(process.cwd(), "scripts", "detect-changes.sh");
 
 interface Repository {
   directory: string;
